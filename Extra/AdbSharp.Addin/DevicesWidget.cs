@@ -5,70 +5,37 @@
 //  --------------------------------------------------------------------------------------------------------------------
 
 using System;
-using MonoDevelop.Core;
 using Gtk;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Components.Docking;
-using System.Threading;
 using MonoDevelop.Components;
 using System.Collections.Generic;
-using System.Globalization;
-using MonoDevelop.Ide.TypeSystem;
-using System.Text;
-using MonoDevelop.Components.Commands;
-using MonoDevelop.Ide.Commands;
-using MonoDevelop.Ide.Gui.Components;
-using MonoDevelop.Ide;
 using AdbSharp;
-using Mono.TextEditor.PopupWindow;
-using MonoDevelop.Ide.Tasks;
 using AdbSharp.Adb;
 using Xwt;
 using System.IO;
 using System.Drawing.Imaging;
+using System.Linq;
 
 namespace AdbSharpAddin
 {
 	internal class DevicesWidget : Gtk.VBox, DropDownBoxListWindow.IListDataProvider
 	{
 		private IDisposable deviceMonitor;
+		private AndroidDeviceBridge adb;
+		private IList<IDevice> devices;
+
+		private IDevice currentDevice;
+		private Gtk.Button unlockButton;
+		private Gtk.Button screenshotButton;
+		private Xwt.ImageView screenshot;
+		private DropDownBox deviceDropDown;
 
 		public DevicesWidget (IPadWindow container) 
 		{
 			this.Setup ();
 			this.Build (container);
 			this.ShowAll ();
-		}
-
-		AndroidDeviceBridge adb;
-
-		public void Shutdown ()
-		{
-
-		}
-
-		private void Setup ()
-		{
-			this.adb = AndroidDeviceBridge.Create ();
-			this.deviceMonitor = this.adb.TrackDevices (this.DevicesChanged, this.MonitorStopped);
-
-			//deviceMonitor
-		}
-
-		private IList<IDevice> devices;
-
-		private void DevicesChanged (IList<IDevice> devices)
-		{
-			this.devices = devices;
-			foreach (var d in devices) {
-				Console.WriteLine ("{0} - {1}", d.DeviceId, d.State);
-			}
-
-		}
-
-		private void MonitorStopped (Exception ex)
-		{
-			
 		}
 
 		public void Reset ()
@@ -95,7 +62,9 @@ namespace AdbSharpAddin
 		public void ActivateItem (int n)
 		{
 			this.currentDevice = n == 0 ? null : this.devices [n - 1];
-			//deviceDropDown.SetItem (n);
+			this.unlockButton.Sensitive = n != 0;
+			this.screenshotButton.Sensitive = n != 0;
+			this.screenshot.Image = null;
 		}
 
 		public int IconCount {
@@ -104,19 +73,34 @@ namespace AdbSharpAddin
 			}
 		}
 
-		private IDevice currentDevice;
-
-		private Gtk.Button unlockButton;
-
-		private Gtk.Button screenshotButton;
-
-		private Xwt.ImageView screenshot;
-
-		private MonoDevelop.Components.DropDownBox deviceDropDown;
-
 		protected override void OnDestroyed ()
 		{
+			this.deviceMonitor.Dispose ();
 			base.OnDestroyed ();
+		}
+
+		private void Setup ()
+		{
+			this.adb = AndroidDeviceBridge.Create ();
+			this.deviceMonitor = this.adb.TrackDevices (this.DevicesChanged, this.MonitorStopped);
+		}
+
+		private void DevicesChanged (IList<IDevice> newDeviceList)
+		{
+			lock (this.adb) {
+				this.devices = newDeviceList;
+				if (this.currentDevice != null) {
+					if (newDeviceList.All (d => d.DeviceId != this.currentDevice.DeviceId)) {
+						this.currentDevice = null;
+						this.deviceDropDown.SetItem (0);
+						this.ActivateItem (0);
+					}
+				}
+			}
+		}
+
+		private void MonitorStopped (Exception ex)
+		{
 		}
 
 		private void Build (IPadWindow container)
@@ -154,14 +138,19 @@ namespace AdbSharpAddin
 			};
 
 			toolbar.ShowAll ();
-
+			this.deviceDropDown.SetItem (0);
+			this.ActivateItem (0);
 		}
 
 		private async void UnlockDevice ()
 		{
 			var device = this.currentDevice;
 			if (device != null) {
+				this.unlockButton.Sensitive = false;
+
 				await device.UnlockAsync ();
+
+				this.unlockButton.Sensitive = true;
 			}
 		}
 
@@ -179,7 +168,8 @@ namespace AdbSharpAddin
 					ms.Position = 0;
 
 					var i = Xwt.Drawing.Image.FromStream (ms);
-					this.screenshot.Image = i;
+
+					this.screenshot.Image = i.Scale (0.5);
 				}
 
 				this.screenshotButton.Sensitive = true;

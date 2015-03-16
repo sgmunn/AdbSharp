@@ -25,11 +25,5 @@ namespace AdbSharpAddin
 				return this.widget; 
 			}
 		}
-
-		public override void Dispose ()
-		{
-			this.widget.Shutdown ();
-			base.Dispose ();
-		}
 	}
 }
