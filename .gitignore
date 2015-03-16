@@ -1,0 +1,8 @@
+AdbSharp/bin
+AdbSharp/obj
+AdbSharp.ConsoleTest/bin
+AdbSharp.ConsoleTest/obj
+AdbSharp.Tests/bin
+AdbSharp.Tests/obj
+Extra/AdbSharp.Addin/obj
+Extra/build

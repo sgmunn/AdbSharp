@@ -1,0 +1,13 @@
+<ExtensionModel>
+
+	<!-- Command Definitions -->
+
+	<Extension path = "/MonoDevelop/Ide/Pads">
+		<Pad id = "BananaTools.Adb.AndroidDeviceBridgePad"
+			_label = "Android Device Bridge"
+			class = "BananaTools.Adb.AndroidDeviceBridgePad"
+			defaultPlacement = "Bottom"
+			defaultStatus="AutoHide" />
+	</Extension>
+
+</ExtensionModel>

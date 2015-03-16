@@ -1,0 +1,23 @@
+<Addin  id          = "AdbSharpAddin"  
+        namespace   = "AdbSharpAddin"  
+        name        = "AdbSharpAddin"  
+        author      = "sgmunn"  
+        copyright   = "All rights reserved"  
+        description = "ADB tools for Xamarin Studio."  
+        category    = "Tools"  
+        version     = "1.0">
+        
+    <Dependencies>
+        <Addin id="::MonoDevelop.Ide" version="5.0" />
+        <Addin id="::MonoDevelop.Core" version="5.0" />
+        <Addin id="::MonoDevelop.Refactoring" version="5.0" />
+    </Dependencies>
+
+	<Extension path = "/MonoDevelop/Ide/Pads">
+		<Pad id = "AdbSharpAddin.DevicesPad"
+			_label = "Android Devices"
+			class = "AdbSharpAddin.DevicesPad"
+			defaultPlacement = "Right"
+			defaultStatus="AutoHide" />
+	</Extension>
+</Addin>

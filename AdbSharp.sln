@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdbSharp", "AdbSharp\AdbSharp.csproj", "{25FD7DB8-6EF4-429F-B9DC-75E30348D62F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdbSharp.ConsoleTest", "AdbSharp.ConsoleTest\AdbSharp.ConsoleTest.csproj", "{0BD28CD1-0E20-41F4-B168-D494099CDBCB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdbSharp.Tests", "AdbSharp.Tests\AdbSharp.Tests.csproj", "{151FCD50-102C-4130-85E2-29E0C20BEC8B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extra", "Extra", "{454171C3-DF1C-4267-ABA9-9B4A07411FBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdbSharp.Addin", "Extra\AdbSharp.Addin\AdbSharp.Addin.csproj", "{4D343225-68BD-4CFD-998C-2BAA13F8FB09}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0BD28CD1-0E20-41F4-B168-D494099CDBCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BD28CD1-0E20-41F4-B168-D494099CDBCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BD28CD1-0E20-41F4-B168-D494099CDBCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BD28CD1-0E20-41F4-B168-D494099CDBCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{151FCD50-102C-4130-85E2-29E0C20BEC8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{151FCD50-102C-4130-85E2-29E0C20BEC8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{151FCD50-102C-4130-85E2-29E0C20BEC8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{151FCD50-102C-4130-85E2-29E0C20BEC8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25FD7DB8-6EF4-429F-B9DC-75E30348D62F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25FD7DB8-6EF4-429F-B9DC-75E30348D62F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25FD7DB8-6EF4-429F-B9DC-75E30348D62F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25FD7DB8-6EF4-429F-B9DC-75E30348D62F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D343225-68BD-4CFD-998C-2BAA13F8FB09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D343225-68BD-4CFD-998C-2BAA13F8FB09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D343225-68BD-4CFD-998C-2BAA13F8FB09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D343225-68BD-4CFD-998C-2BAA13F8FB09}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4D343225-68BD-4CFD-998C-2BAA13F8FB09} = {454171C3-DF1C-4267-ABA9-9B4A07411FBA}
+	EndGlobalSection
+EndGlobal
