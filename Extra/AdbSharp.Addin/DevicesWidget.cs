@@ -5,21 +5,22 @@
 //  --------------------------------------------------------------------------------------------------------------------
 
 using System;
-using Gtk;
+//using Gtk;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Components.Docking;
 using MonoDevelop.Components;
 using System.Collections.Generic;
 using AdbSharp;
 using AdbSharp.Adb;
-using Xwt;
+//using Xwt;
 using System.IO;
 using System.Drawing.Imaging;
 using System.Linq;
+using Gtk;
 
 namespace AdbSharpAddin
 {
-	internal class DevicesWidget : Gtk.VBox, DropDownBoxListWindow.IListDataProvider
+	internal class DevicesWidget : Gtk.VBox
 	{
 		private IDisposable deviceMonitor;
 		private AndroidDeviceBridge adb;
@@ -29,48 +30,13 @@ namespace AdbSharpAddin
 		private Gtk.Button unlockButton;
 		private Gtk.Button screenshotButton;
 		private Xwt.ImageView screenshot;
-		private DropDownBox deviceDropDown;
+		private Xwt.ComboBox deviceDropDown;
 
 		public DevicesWidget (IPadWindow container) 
 		{
 			this.Setup ();
 			this.Build (container);
 			this.ShowAll ();
-		}
-
-		public void Reset ()
-		{
-			deviceDropDown.SetItem (0);
-		}
-
-		public string GetMarkup (int n)
-		{
-			return n == 0 ? "Select Device" : this.devices [n - 1].DeviceId;
-		}
-
-		public Xwt.Drawing.Image GetIcon (int n)
-		{
-			return null;
-		}
-
-		public object GetTag (int n)
-		{
-			return n == 0 ? "Select Device" : this.devices [n - 1].DeviceId;
-
-		}
-
-		public void ActivateItem (int n)
-		{
-			this.currentDevice = n == 0 ? null : this.devices [n - 1];
-			this.unlockButton.Sensitive = n != 0;
-			this.screenshotButton.Sensitive = n != 0;
-			this.screenshot.Image = null;
-		}
-
-		public int IconCount {
-			get {
-				return this.devices != null ? this.devices.Count + 1: 1;
-			}
 		}
 
 		protected override void OnDestroyed ()
@@ -85,38 +51,16 @@ namespace AdbSharpAddin
 			this.deviceMonitor = this.adb.TrackDevices (this.DevicesChanged, this.MonitorStopped);
 		}
 
-		private void DevicesChanged (IList<IDevice> newDeviceList)
-		{
-			lock (this.adb) {
-				this.devices = newDeviceList;
-				if (this.currentDevice != null) {
-					if (newDeviceList.All (d => d.DeviceId != this.currentDevice.DeviceId)) {
-						this.currentDevice = null;
-						this.deviceDropDown.SetItem (0);
-						this.ActivateItem (0);
-					}
-				}
-			}
-		}
-
-		private void MonitorStopped (Exception ex)
-		{
-		}
-
 		private void Build (IPadWindow container)
 		{
-			var toolbar = container.GetToolbar (PositionType.Top);
+			var toolbar = container.GetToolbar (Gtk.PositionType.Top);
 
-			deviceDropDown = new DropDownBox ();
-			deviceDropDown.DrawButtonShape = false;
-			deviceDropDown.SetSizeRequest (160, 20);
-			deviceDropDown.DataProvider = this;
-
-
-			var filterVBox = new Gtk.VBox ();
-			filterVBox.PackStart (deviceDropDown, true, false, 0); 
-			toolbar.Add (filterVBox, false);
-
+			deviceDropDown = new Xwt.ComboBox ();
+			deviceDropDown.WidthRequest =  160;
+			toolbar.Add (deviceDropDown.ToGtkWidget (), false);
+			this.deviceDropDown.Items.Add ("Select Device");
+			this.deviceDropDown.SelectedIndex = 0;
+			this.deviceDropDown.SelectionChanged += this.DeviceDropDownSelectionChanged;
 
 			this.unlockButton = new Gtk.Button () { Label = "Unlock" };
 			this.screenshotButton = new Gtk.Button () { Label = "Screenshot" };
@@ -125,7 +69,7 @@ namespace AdbSharpAddin
 
 			this.screenshot = new Xwt.ImageView ();
 
-			var scrollView = new ScrollView ();
+			var scrollView = new Xwt.ScrollView ();
 			scrollView.Content = screenshot;
 			this.Add (scrollView.ToGtkWidget ());
 
@@ -138,8 +82,54 @@ namespace AdbSharpAddin
 			};
 
 			toolbar.ShowAll ();
-			this.deviceDropDown.SetItem (0);
-			this.ActivateItem (0);
+		}
+
+		private void DeviceDropDownSelectionChanged (object sender, EventArgs e)
+		{
+			lock (this.adb) {
+				var ix = this.deviceDropDown.SelectedIndex;
+				if (ix <= 0) {
+					this.currentDevice = null;
+				} else {
+					this.currentDevice = this.devices [ix - 1];
+				}
+
+				this.unlockButton.Sensitive = ix != 0;
+				this.screenshotButton.Sensitive = ix != 0;
+				this.screenshot.Image = null;
+			}
+		}
+
+		private void DevicesChanged (IList<IDevice> newDeviceList)
+		{
+			Xwt.Application.Invoke (() => {
+				lock (this.adb) {
+					var current = this.currentDevice;
+
+					this.devices = newDeviceList;
+					this.deviceDropDown.Items.Clear ();
+					this.deviceDropDown.Items.Add ("Select Device");
+					foreach (var d in newDeviceList) {
+						this.deviceDropDown.Items.Add (d.DeviceId);
+					}
+
+					if (current != null) {
+						var d = newDeviceList.FirstOrDefault (x => x.DeviceId == this.currentDevice.DeviceId);
+						if (d == null) {
+							this.deviceDropDown.SelectedIndex = 0;
+							this.currentDevice = null;
+						} else {
+							this.deviceDropDown.SelectedIndex = newDeviceList.IndexOf (d) + 1;
+						}
+					} else {
+						this.deviceDropDown.SelectedIndex = 0;
+					}
+				}
+			});
+		}
+
+		private void MonitorStopped (Exception ex)
+		{
 		}
 
 		private async void UnlockDevice ()
