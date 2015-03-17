@@ -38,6 +38,14 @@ namespace AdbSharp.Adb
 			}
 		}
 
+		public async Task SendTapAsync (int x, int y)
+		{
+			using (var client = await this.CreateAndConnectAsync (CancellationToken.None).ConfigureAwait (false)) {
+				await client.ExecuteCommandAsync (Commands.Device.GetInputTap (x, y)).ConfigureAwait (false);
+				await client.ReadCommandResponseAsync ();
+			}
+		}
+
 		public Task<Framebuffer> GetFramebufferAsync () 
 		{
 			return this.GetFramebufferAsync (CancellationToken.None);

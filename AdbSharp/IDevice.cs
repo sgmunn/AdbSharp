@@ -18,6 +18,8 @@ namespace AdbSharp
 		Task UnlockAsync ();
 		Task UnlockAsync (CancellationToken cancelToken);
 
+		Task SendTapAsync (int x, int y);
+
 		Task<Framebuffer> GetFramebufferAsync ();
 		Task<Framebuffer> GetFramebufferAsync (CancellationToken cancelToken);
 	}
