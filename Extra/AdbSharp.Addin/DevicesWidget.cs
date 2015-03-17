@@ -5,18 +5,16 @@
 //  --------------------------------------------------------------------------------------------------------------------
 
 using System;
-//using Gtk;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Components.Docking;
 using MonoDevelop.Components;
 using System.Collections.Generic;
 using AdbSharp;
 using AdbSharp.Adb;
-//using Xwt;
 using System.IO;
 using System.Drawing.Imaging;
 using System.Linq;
-using Gtk;
+using MonoDevelop.Core;
 
 namespace AdbSharpAddin
 {
@@ -31,6 +29,12 @@ namespace AdbSharpAddin
 		private Gtk.Button screenshotButton;
 		private Xwt.ImageView screenshot;
 		private Xwt.ComboBox deviceDropDown;
+		private Xwt.ScrollView scrollView;
+
+		private int viewerWidth;
+		private int viewerHeight;
+		private Xwt.Drawing.Image lastImage;
+		private double lastImageScale;
 
 		public DevicesWidget (IPadWindow container) 
 		{
@@ -47,6 +51,7 @@ namespace AdbSharpAddin
 
 		private void Setup ()
 		{
+			// TODO: pass in the adb path from ?
 			this.adb = AndroidDeviceBridge.Create ();
 			this.deviceMonitor = this.adb.TrackDevices (this.DevicesChanged, this.MonitorStopped);
 		}
@@ -68,10 +73,12 @@ namespace AdbSharpAddin
 			toolbar.Add (this.screenshotButton);
 
 			this.screenshot = new Xwt.ImageView ();
+			this.scrollView = new Xwt.ScrollView ();
+			this.scrollView.HeightRequest = 600;
+			this.scrollView.Content = this.screenshot;
+			this.PackStart (this.scrollView.ToGtkWidget (), false, true, 0);
 
-			var scrollView = new Xwt.ScrollView ();
-			scrollView.Content = screenshot;
-			this.Add (scrollView.ToGtkWidget ());
+			this.screenshot.ButtonPressed += this.ScreenshotButtonPressed;
 
 			this.unlockButton.Clicked += (sender, e) => {
 				this.UnlockDevice ();
@@ -82,6 +89,24 @@ namespace AdbSharpAddin
 			};
 
 			toolbar.ShowAll ();
+		}
+
+		protected override void OnSizeAllocated (Gdk.Rectangle allocation)
+		{
+			base.OnSizeAllocated (allocation);
+			this.viewerWidth = (int)this.screenshot.Size.Width;
+			this.viewerHeight = (int)this.screenshot.Size.Height;
+		}
+
+		private void UpdateImage ()
+		{
+			lock (this.adb) {
+				
+				if (this.lastImage != null) {
+					var scale = this.CalculateScale ();
+					this.screenshot.Image = this.lastImage.Scale (scale);
+				}
+			}
 		}
 
 		private void DeviceDropDownSelectionChanged (object sender, EventArgs e)
@@ -130,6 +155,11 @@ namespace AdbSharpAddin
 
 		private void MonitorStopped (Exception ex)
 		{
+			LoggingService.Log (MonoDevelop.Core.Logging.LogLevel.Warn, "Restarting Device Monitor");
+			if (ex != null) 
+				LoggingService.Log (MonoDevelop.Core.Logging.LogLevel.Warn, ex.ToString ());
+
+			this.deviceMonitor = this.adb.TrackDevices (this.DevicesChanged, this.MonitorStopped);
 		}
 
 		private async void UnlockDevice ()
@@ -157,13 +187,53 @@ namespace AdbSharpAddin
 					img.Save (ms, ImageFormat.Bmp);
 					ms.Position = 0;
 
-					var i = Xwt.Drawing.Image.FromStream (ms);
-
-					this.screenshot.Image = i.Scale (0.5);
+					lock (this.adb) {
+						this.lastImage = Xwt.Drawing.Image.FromStream (ms);
+						this.lastImageScale = this.CalculateScale ();
+						this.screenshot.Image = this.lastImage.Scale (this.lastImageScale);
+					}
 				}
 
 				this.screenshotButton.Sensitive = true;
 			}
+		}
+
+		private bool sendingTap;
+		private async void ScreenshotButtonPressed (object sender, Xwt.ButtonEventArgs e)
+		{
+			if (this.sendingTap)
+				return;
+			
+			var device = this.currentDevice;
+			if (this.lastImage != null && device != null && e.Button == Xwt.PointerButton.Left) {
+				var screenX = (int)(e.X / this.lastImageScale);
+				var screenY = (int)(e.Y / this.lastImageScale);
+
+				this.sendingTap = true;
+				try {
+					await device.SendTapAsync (screenX, screenY);
+					// trigger a screenshot
+					this.TakeScreenshot ();
+				}
+				finally {
+					this.sendingTap = false;
+				}
+			}
+		}
+
+		private double CalculateScale ()
+		{
+			var w1 = this.lastImage.Width;
+			var w2 = this.viewerWidth;
+			var h1 = this.lastImage.Height;
+			var h2 = this.viewerHeight;
+
+			var s1 = w2 / w1;
+			var s2 = h2 / h1;
+			if (s1 > s2)
+				return s2;
+
+			return s1;
 		}
 	}
 }
