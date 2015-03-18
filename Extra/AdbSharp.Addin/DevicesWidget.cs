@@ -25,6 +25,7 @@ namespace AdbSharpAddin
 		private IList<IDevice> devices;
 
 		private IDevice currentDevice;
+		private DockToolButton connectButton;
 		private DockToolButton unlockButton;
 		private DockToolButton screenshotButton;
 		private Xwt.ImageView screenshot;
@@ -35,25 +36,22 @@ namespace AdbSharpAddin
 		private int viewerHeight;
 		private Xwt.Drawing.Image lastImage;
 		private double lastImageScale;
+		private bool sendingTap;
+
+		// TODO: cancellation of running tasks
+
 
 		public DevicesWidget (IPadWindow container) 
 		{
-			this.Setup ();
 			this.Build (container);
 			this.ShowAll ();
 		}
 
 		protected override void OnDestroyed ()
 		{
-			this.deviceMonitor.Dispose ();
+			if (this.deviceMonitor != null)
+				this.deviceMonitor.Dispose ();
 			base.OnDestroyed ();
-		}
-
-		private void Setup ()
-		{
-			// TODO: pass in the adb path from ?
-			this.adb = AndroidDeviceBridge.Create ();
-			this.deviceMonitor = this.adb.TrackDevices (this.DevicesChanged, this.MonitorStopped);
 		}
 
 		private void Build (IPadWindow container)
@@ -62,13 +60,16 @@ namespace AdbSharpAddin
 
 			deviceDropDown = new Xwt.ComboBox ();
 			deviceDropDown.WidthRequest =  160;
-			toolbar.Add (deviceDropDown.ToGtkWidget (), false);
 			this.deviceDropDown.Items.Add ("Select Device");
 			this.deviceDropDown.SelectedIndex = 0;
 			this.deviceDropDown.SelectionChanged += this.DeviceDropDownSelectionChanged;
 
-			this.unlockButton = new DockToolButton (null, "Unlock");
-			this.screenshotButton = new DockToolButton (null, "Screenshot");
+			this.connectButton = new DockToolButton (null, "C") { TooltipText = "Connect to ADB" };
+			this.unlockButton = new DockToolButton (null, "Unlock") { TooltipText = "Unlock the device" };
+			this.screenshotButton = new DockToolButton (null, "Screenshot") { TooltipText = "Take a screenshot" };
+
+			toolbar.Add (this.connectButton);
+			toolbar.Add (deviceDropDown.ToGtkWidget (), false);
 			toolbar.Add (this.unlockButton);
 			toolbar.Add (this.screenshotButton);
 
@@ -78,15 +79,12 @@ namespace AdbSharpAddin
 			this.scrollView.Content = this.screenshot;
 			this.PackStart (this.scrollView.ToGtkWidget (), false, true, 0);
 
+			this.connectButton.Clicked += (sender, e) => this.ConnectDisconnect ();
 			this.screenshot.ButtonPressed += this.ScreenshotButtonPressed;
+			this.unlockButton.Clicked += (sender, e) => this.UnlockDevice ();
+			this.screenshotButton.Clicked += (sender, e) => this.TakeScreenshot ();
 
-			this.unlockButton.Clicked += (sender, e) => {
-				this.UnlockDevice ();
-			};
-
-			this.screenshotButton.Clicked += (sender, e) => {
-				this.TakeScreenshot ();
-			};
+			this.SetButtonStates ();
 
 			toolbar.ShowAll ();
 		}
@@ -111,55 +109,117 @@ namespace AdbSharpAddin
 
 		private void DeviceDropDownSelectionChanged (object sender, EventArgs e)
 		{
-			lock (this.adb) {
-				var ix = this.deviceDropDown.SelectedIndex;
-				if (ix <= 0) {
-					this.currentDevice = null;
-				} else {
-					this.currentDevice = this.devices [ix - 1];
-				}
+			var ix = this.deviceDropDown.SelectedIndex;
 
-				this.unlockButton.Sensitive = ix != 0;
-				this.screenshotButton.Sensitive = ix != 0;
-				this.screenshot.Image = null;
-			}
+			var device = ix <= 0 ? null : this.devices [ix - 1];
+			this.SetCurrentDevice (device);
 		}
 
 		private void DevicesChanged (IList<IDevice> newDeviceList)
 		{
 			Xwt.Application.Invoke (() => {
-				lock (this.adb) {
-					var current = this.currentDevice;
+				var current = this.currentDevice;
+				this.devices = newDeviceList;
+				this.ClearDeviceDropDown ();
 
-					this.devices = newDeviceList;
-					this.deviceDropDown.Items.Clear ();
-					this.deviceDropDown.Items.Add ("Select Device");
-					foreach (var d in newDeviceList) {
-						this.deviceDropDown.Items.Add (d.DeviceId);
-					}
+				var onlineDevices = newDeviceList.Where (x => x.State == "device").ToList ();
 
-					if (current != null) {
-						var d = newDeviceList.FirstOrDefault (x => x.DeviceId == this.currentDevice.DeviceId);
-						if (d == null) {
-							this.deviceDropDown.SelectedIndex = 0;
-							this.currentDevice = null;
-						} else {
-							this.deviceDropDown.SelectedIndex = newDeviceList.IndexOf (d) + 1;
-						}
-					} else {
-						this.deviceDropDown.SelectedIndex = 0;
+				// TODO: show all devices in a list with their current state
+				foreach (var d in onlineDevices) {
+					this.deviceDropDown.Items.Add (d.DeviceId);
+				}
+
+				if (current != null) {
+					var d = onlineDevices.FirstOrDefault (x => x.DeviceId == current.DeviceId);
+					if (d != null) {
+						this.deviceDropDown.SelectedIndex = onlineDevices.IndexOf (d) + 1;
+						this.SetCurrentDevice (onlineDevices [0]);
 					}
+  				}
+
+				// default if only one device
+				if (this.deviceDropDown.SelectedIndex <= 0 && onlineDevices.Count == 1) {
+					this.deviceDropDown.SelectedIndex = 1;
+					this.SetCurrentDevice (onlineDevices [0]);
 				}
 			});
 		}
 
 		private void MonitorStopped (Exception ex)
 		{
-			LoggingService.Log (MonoDevelop.Core.Logging.LogLevel.Warn, "Restarting Device Monitor");
-			if (ex != null) 
-				LoggingService.Log (MonoDevelop.Core.Logging.LogLevel.Warn, ex.ToString ());
+			if (ex != null)
+				LoggingService.Log (MonoDevelop.Core.Logging.LogLevel.Error, string.Format ("Android Device Monitor Stopped\n{0}", ex));
+			else
+				LoggingService.Log (MonoDevelop.Core.Logging.LogLevel.Error, "Android Device Monitor Stopped");
+			
+			Xwt.Application.Invoke (() => {
+				this.Disconnect ();
+				this.SetButtonStates ();
+			});
+		}
 
+		private void SetButtonStates ()
+		{
+			this.deviceDropDown.Sensitive = this.adb != null && this.devices != null && this.devices.Count > 0;
+			this.unlockButton.Sensitive = this.adb != null && this.currentDevice != null;
+			this.screenshotButton.Sensitive = this.adb != null && this.currentDevice != null;
+			if (this.adb == null) {
+				this.screenshot.Image = null;
+			}
+		}
+
+		private void ClearDeviceDropDown ()
+		{
+			this.deviceDropDown.SelectedIndex = 0;
+
+			while (this.deviceDropDown.Items.Count > 1) {
+				this.deviceDropDown.Items.RemoveAt (1);
+			}
+		}
+
+		private void SetCurrentDevice (IDevice device)
+		{
+			if (device != this.currentDevice)
+				this.screenshot.Image = null;
+
+			this.currentDevice = device;
+			this.SetButtonStates ();
+		}
+
+		private void ConnectDisconnect ()
+		{
+			if (this.adb == null) {
+				this.Connect ();
+			} else {
+				this.Disconnect ();
+			}
+		}
+
+		private void Connect ()
+		{
+			this.Disconnect ();
+
+
+			// TODO: test the connection and put into status bar if we failed to connect, or something like that
+			// TODO: start up adb, log failure to start
+
+			this.adb = AndroidDeviceBridge.Create ();
 			this.deviceMonitor = this.adb.TrackDevices (this.DevicesChanged, this.MonitorStopped);
+			this.SetButtonStates ();
+			this.connectButton.TooltipText = "Disconnect from ADB";
+		}
+
+		private void Disconnect ()
+		{
+			if (this.deviceMonitor != null) {
+				this.deviceMonitor.Dispose ();
+				this.deviceMonitor = null;
+			}
+
+			this.adb = null;
+			this.ClearDeviceDropDown ();
+			this.SetButtonStates ();
+			this.connectButton.TooltipText = "Connect to ADB";
 		}
 
 		private async void UnlockDevice ()
@@ -176,7 +236,6 @@ namespace AdbSharpAddin
 
 		private async void TakeScreenshot ()
 		{
-			// TODO: resize the image
 			var device = this.currentDevice;
 			if (device != null) {
 				this.screenshotButton.Sensitive = false;
@@ -198,7 +257,6 @@ namespace AdbSharpAddin
 			}
 		}
 
-		private bool sendingTap;
 		private async void ScreenshotButtonPressed (object sender, Xwt.ButtonEventArgs e)
 		{
 			if (this.sendingTap)
