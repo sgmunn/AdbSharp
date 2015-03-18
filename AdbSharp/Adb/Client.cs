@@ -42,7 +42,7 @@ namespace AdbSharp.Adb
 		{
 			this.CheckDisposed ();
 			if (this.tcpClient != null)
-				throw new AdbException ("Already connected");
+				throw new InvalidOperationException ("Adb Client is already connected.");
 			
 			return InternalConnectAsync (true);
 		}
@@ -62,7 +62,7 @@ namespace AdbSharp.Adb
 		{
 			this.CheckDisposed ();
 			var cmd = Commands.GetCommand (command);
-			Console.WriteLine ("Executing command: {0}", command);
+Console.WriteLine ("Executing command: {0}", command);
 			await this.clientStream.WriteAsync (cmd, 0, cmd.Length, this.cancel.Token).ConfigureAwait (false);
 			if (await this.CheckCommandStatusAsync ().ConfigureAwait (false)) {
 				return true;
@@ -130,7 +130,7 @@ namespace AdbSharp.Adb
 		private void CheckDisposed ()
 		{
 			if (this.disposed)
-				throw new ObjectDisposedException ("adb client has been disposed");
+				throw new ObjectDisposedException ("Adb client has been disposed.");
 		}
 
 		private async Task InternalConnectAsync (bool allowStartServer)
@@ -142,7 +142,7 @@ namespace AdbSharp.Adb
 			try {
 				await this.tcpClient.ConnectAsync (this.Adb.Config.Address, this.Adb.Config.Port).ConfigureAwait (false);
 				if (!this.tcpClient.Connected)
-					throw new AdbException ("Client could not connect");
+					throw new AdbConnectionException ("Client did not connect.");
 			}
 			catch (SocketException ex) {
 				if (ex.ErrorCode == 10061) {
@@ -154,18 +154,18 @@ namespace AdbSharp.Adb
 				}
 			}
 
-			if (needsServerStart) {
+			if (allowStartServer && needsServerStart) {
 				// start up the adb server
-				var started = await this.Adb.StartServerAsync ();
+				var started = await this.Adb.StartServerAsync ().ConfigureAwait (false);
 				if (started == 0) {
 					await this.InternalConnectAsync (false);
 				} else {
-					throw new AdbException ("Adb server not started and failed to start");
+					throw new AdbServerException ("Adb server not started and failed to start.");
 				}
 			} else {
 				// we should be connected now
 				if (!this.tcpClient.Connected)
-					throw new AdbException ("Client could not connect");
+					throw new AdbConnectionException ("Client did not connect.");
 
 				this.clientStream = tcpClient.GetStream ();
 			}
@@ -180,7 +180,7 @@ namespace AdbSharp.Adb
 			if (bytesRead == 4) {
 				var responseStr = Commands.GetCommandResponse (response, 0, bytesRead);
 
-				Console.WriteLine (responseStr);
+Console.WriteLine (responseStr);
 
 				if (responseStr == "OKAY") {
 					return true;
@@ -191,7 +191,7 @@ namespace AdbSharp.Adb
 				}
 			}
 
-			throw new InvalidDataException ("todo");
+			throw new InvalidAdbResponseException ("Adb returned an invalid response.");
 		}
 	}
 }

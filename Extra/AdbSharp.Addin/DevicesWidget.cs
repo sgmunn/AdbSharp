@@ -15,6 +15,7 @@ using System.IO;
 using System.Drawing.Imaging;
 using System.Linq;
 using MonoDevelop.Core;
+using System.Threading;
 
 namespace AdbSharpAddin
 {
@@ -39,7 +40,7 @@ namespace AdbSharpAddin
 		private bool sendingTap;
 
 		// TODO: cancellation of running tasks
-
+		// TODO: log errors from AdbSharp
 
 		public DevicesWidget (IPadWindow container) 
 		{
@@ -228,7 +229,7 @@ namespace AdbSharpAddin
 			if (device != null) {
 				this.unlockButton.Sensitive = false;
 
-				await device.UnlockAsync ();
+				await device.UnlockAsync (CancellationToken.None);
 
 				this.unlockButton.Sensitive = true;
 			}
@@ -239,17 +240,19 @@ namespace AdbSharpAddin
 			var device = this.currentDevice;
 			if (device != null) {
 				this.screenshotButton.Sensitive = false;
-				var buffer = await device.GetFramebufferAsync ();
-				var img = await buffer.ToImageAsync ();
+				var buffer = await device.GetFramebufferAsync (CancellationToken.None);
+				if (buffer != null) {
+					var img = await buffer.ToImageAsync ();
 
-				using (var ms = new MemoryStream ()) {
-					img.Save (ms, ImageFormat.Bmp);
-					ms.Position = 0;
+					using (var ms = new MemoryStream ()) {
+						img.Save (ms, ImageFormat.Bmp);
+						ms.Position = 0;
 
-					lock (this.adb) {
-						this.lastImage = Xwt.Drawing.Image.FromStream (ms);
-						this.lastImageScale = this.CalculateScale ();
-						this.screenshot.Image = this.lastImage.Scale (this.lastImageScale);
+						lock (this.adb) {
+							this.lastImage = Xwt.Drawing.Image.FromStream (ms);
+							this.lastImageScale = this.CalculateScale ();
+							this.screenshot.Image = this.lastImage.Scale (this.lastImageScale);
+						}
 					}
 				}
 
@@ -269,7 +272,7 @@ namespace AdbSharpAddin
 
 				this.sendingTap = true;
 				try {
-					await device.SendTapAsync (screenX, screenY);
+					await device.SendTapAsync (screenX, screenY, CancellationToken.None);
 					// trigger a screenshot
 					this.TakeScreenshot ();
 				}

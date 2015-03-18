@@ -2,6 +2,7 @@
 using AdbSharp.Adb;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Threading;
 
 namespace AdbSharp.ConsoleTest
 {
@@ -18,7 +19,7 @@ namespace AdbSharp.ConsoleTest
 			IDisposable monitor = null;
 
 			var adb = AndroidDeviceBridge.Create ();
-			Console.WriteLine (adb.GetServerVersionAsync ().Result);
+			Console.WriteLine (adb.GetServerVersionAsync (CancellationToken.None).Result);
 //
 //			var devices = adb.GetDevicesAsync ().Result;
 //			foreach (var d in devices) {
@@ -37,20 +38,6 @@ namespace AdbSharp.ConsoleTest
 			});
 
 //			adb.UnlockAsync ().Wait ();
-
-			var sw = new Stopwatch ();
-			sw.Start ();
-			var fm = adb.GetFramebufferAsync ().Result;
-			sw.Stop ();
-			Console.WriteLine ("got framebuffer {0}", sw.ElapsedMilliseconds);
-			sw.Reset ();
-			sw.Start ();
-			var img = fm.ToImage ();
-			img.Save ("/Users/sgm/Desktop/Image1.png");
-			sw.Stop ();
-			Console.WriteLine ("got image 1" +
-				" {0}", sw.ElapsedMilliseconds);
-			sw.Reset ();
 
 			Console.WriteLine ("Done");
 			Console.ReadLine ();

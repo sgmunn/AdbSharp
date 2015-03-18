@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
 using AdbSharp.Utils;
+using System.Threading;
 
 namespace AdbSharp
 {
@@ -69,7 +70,7 @@ namespace AdbSharp
 				}
 				catch (Win32Exception ex) {
 					if (ex.NativeErrorCode == 2) {
-						throw new AdbException ("Adb was not found, invalid configuration");
+						throw new AdbNotFoundException ("Adb was not found, invalid or missing configuration.");
 					}
 					else {
 						throw;
@@ -80,23 +81,26 @@ namespace AdbSharp
 			return task;
 		}
 
-		public async Task<string> GetServerVersionAsync ()
+		public async Task<string> GetServerVersionAsync (CancellationToken cancelToken)
 		{
-			using (var client = new Client (this)) {
-				await client.ConnectAsync ();
-				await client.ExecuteCommandAsync (Commands.Host.Version);
-				var data = await client.ReadCommandResponseAsync ();
+			var client = await this.CreateAndConnectAsync (cancelToken).ConfigureAwait (false);
+			using (client) {
+				await client.ConnectAsync ().ConfigureAwait (false);
+				await client.ExecuteCommandAsync (Commands.Host.Version).ConfigureAwait (false);
+
+				var data = await client.ReadCommandResponseAsync ().ConfigureAwait (false);
 				return data;
 			}
 		}
 
-		public async Task<IList<IDevice>> GetDevicesAsync ()
+		public async Task<IList<IDevice>> GetDevicesAsync (CancellationToken cancelToken)
 		{
-			using (var client = new Client (this)) {
-				await client.ConnectAsync ();
-				await client.ExecuteCommandAsync (Commands.Host.Devices);
+			var client = await this.CreateAndConnectAsync (cancelToken).ConfigureAwait (false);
+			using (client) {
+				await client.ConnectAsync ().ConfigureAwait (false);
+				await client.ExecuteCommandAsync (Commands.Host.Devices).ConfigureAwait (false);
 
-				var data = await client.ReadCommandResponseAsync ();
+				var data = await client.ReadCommandResponseAsync ().ConfigureAwait (false);
 				return DeviceMonitor.ParseDeviceOutput (this, data);
 			}
 		}
@@ -108,50 +112,41 @@ namespace AdbSharp
 			return monitor;
 		}
 
-		public async Task<IDevice> GetDefaultDeviceAsync ()
+
+		/// <summary>
+		/// Gets the device that is connected as long as there is only one device connected
+		/// </summary>
+		public async Task<IDevice> GetDefaultDeviceAsync (CancellationToken cancelToken)
 		{
-			var devices = await this.GetDevicesAsync ();
+			var devices = await this.GetDevicesAsync (cancelToken).ConfigureAwait (false);
 			if (devices.Count < 1)
-				throw new AdbException ("no devices connected");
+				throw new UnexpectedDeviceCountException ("There are no devices connected.");
 
 			if (devices.Count > 1)
-				throw new AdbException ("more than one device connected, specify device id");
+				throw new UnexpectedDeviceCountException ("There is more than one device connected, specify the device id instead.");
 
 			return devices [0];
 		}
 
-		public async Task<IDevice> GetDeviceByIdAsync (string deviceId)
+		public async Task<IDevice> GetDeviceByIdAsync (string deviceId, CancellationToken cancelToken)
 		{
-			var devices = await this.GetDevicesAsync ();
+			var devices = await this.GetDevicesAsync (cancelToken).ConfigureAwait (false);
 			var device = devices.FirstOrDefault (d => d.DeviceId == deviceId);
 			if (device == null)
-				throw new AdbException ("device not found");
+				throw new DeviceNotFoundException ("The specified device was not found.");
 
 			return device;
 		}
 
-		public async Task UnlockAsync ()
+		internal async Task<Client> CreateAndConnectAsync (CancellationToken cancelToken)
 		{
-			var device = await this.GetDefaultDeviceAsync ();
-			await device.UnlockAsync ();
+			var client = new Client (this);
+			if (cancelToken.CanBeCanceled)
+				cancelToken.Register (client.Dispose);
+
+			await client.ConnectAsync ().ConfigureAwait (false);
+			return client;
 		}
 
-		public async Task UnlockAsync (string deviceId)
-		{
-			var device = await GetDeviceByIdAsync (deviceId);
-			await device.UnlockAsync ();
-		}
-
-		public async Task<Framebuffer> GetFramebufferAsync ()
-		{
-			var device = await this.GetDefaultDeviceAsync ();
-			return await device.GetFramebufferAsync ();
-		}
-
-		public async Task<Framebuffer> GetFramebufferAsync (string deviceId)
-		{
-			var device = await GetDeviceByIdAsync (deviceId);
-			return await device.GetFramebufferAsync ();
-		}
 	}
 }

@@ -15,12 +15,8 @@ namespace AdbSharp
 		string DeviceId { get; }
 		string State { get; }
 
-		Task UnlockAsync ();
 		Task UnlockAsync (CancellationToken cancelToken);
-
-		Task SendTapAsync (int x, int y);
-
-		Task<Framebuffer> GetFramebufferAsync ();
+		Task SendTapAsync (int x, int y, CancellationToken cancelToken);
 		Task<Framebuffer> GetFramebufferAsync (CancellationToken cancelToken);
 	}
 }

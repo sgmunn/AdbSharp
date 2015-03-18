@@ -25,40 +25,32 @@ namespace AdbSharp.Adb
 
 		public string State { get; private set; }
 
-		public Task UnlockAsync ()
-		{
-			return UnlockAsync (CancellationToken.None);
-		}
-
 		public async Task UnlockAsync (CancellationToken cancelToken)
 		{
-			using (var client = await this.CreateAndConnectAsync (cancelToken).ConfigureAwait (false)) {
+			var client = await this.CreateAndConnectToTransportAsync (cancelToken).ConfigureAwait (false);
+
+			using (client) {
 				await client.ExecuteCommandAsync (Commands.Device.Unlock).ConfigureAwait (false);
-				await client.ReadCommandResponseAsync ();
+				await client.ReadCommandResponseAsync ().ConfigureAwait (false);
 			}
 		}
 
-		public async Task SendTapAsync (int x, int y)
+		public async Task SendTapAsync (int x, int y, CancellationToken cancelToken)
 		{
-			using (var client = await this.CreateAndConnectAsync (CancellationToken.None).ConfigureAwait (false)) {
+			var client = await this.CreateAndConnectToTransportAsync (cancelToken).ConfigureAwait (false);
+			using (client) {
 				await client.ExecuteCommandAsync (Commands.Device.GetInputTap (x, y)).ConfigureAwait (false);
-				await client.ReadCommandResponseAsync ();
+				await client.ReadCommandResponseAsync ().ConfigureAwait (false);
 			}
-		}
-
-		public Task<Framebuffer> GetFramebufferAsync () 
-		{
-			return this.GetFramebufferAsync (CancellationToken.None);
 		}
 
 		public async Task<Framebuffer> GetFramebufferAsync (CancellationToken cancelToken) 
 		{
-			using (var client = await this.CreateAndConnectAsync (cancelToken)) {
-
-				if (await client.ExecuteCommandAsync (Commands.Device.Framebuffer)) {
-
+			var client = await this.CreateAndConnectToTransportAsync (cancelToken).ConfigureAwait (false);
+			using (client) {
+				if (await client.ExecuteCommandAsync (Commands.Device.Framebuffer).ConfigureAwait (false)) {
 					var fm = new Framebuffer ();
-					await fm.ReadFramebufferAsync (client.Stream);
+					await fm.ReadFramebufferAsync (client.Stream).ConfigureAwait (false);
 
 					return fm;
 				}
@@ -67,17 +59,13 @@ namespace AdbSharp.Adb
 			return null;
 		}
 
-		private async Task<Client> CreateAndConnectAsync (CancellationToken cancelToken)
+		private async Task<Client> CreateAndConnectToTransportAsync (CancellationToken cancelToken)
 		{
-			var client = new Client (this.Adb);
-			if (cancelToken.CanBeCanceled)
-				cancelToken.Register (client.Dispose);
-			
-			await client.ConnectAsync ();
+			var client = await this.Adb.CreateAndConnectAsync (cancelToken).ConfigureAwait (false);
 
 			var connected = await client.ExecuteCommandAsync (Commands.Host.Transport + this.DeviceId).ConfigureAwait (false);
 			if (!connected)
-				throw new Exception ("not connected");
+				throw new TransportConnectFailedException ("Did not connect to device transport.");
 			return client;
 		}
 	}
