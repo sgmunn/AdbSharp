@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 
 namespace AdbSharp.Adb
 {
+	/// <summary>
+	/// Handles notifications from adb track-devices
+	/// </summary>
 	public sealed class DeviceMonitor : IDisposable
 	{
 		private readonly object locker = new object ();
@@ -86,17 +89,17 @@ namespace AdbSharp.Adb
 			while (!this.disposed) {
 				try {
 					var r = await this.client.ReadCommandResponseAsync ().ConfigureAwait (false);
-					Debug.WriteLine ("{0}{1}", "devices: ", r);
+Debug.WriteLine ("{0}{1}", "devices: ", r);
 					if (r == null) {
-						Debug.WriteLine ("returned null");
+Debug.WriteLine ("returned null");
 						// most likely because adb server disappeared, restarted or network issue
 						// we can try to reconnect
-						this.NotifyStopped (new AdbException ("Server stopped tracking"));
+						this.NotifyStopped (new AdbDeviceMonitorException ("Adb Server stopped tracking events."));
 						return;
 					}
 
 					if (this.disposed) {
-						Debug.WriteLine ("done monitor, disposed");
+Debug.WriteLine ("done monitor, disposed");
 						this.NotifyStopped (null);
 						return;
 					}
@@ -108,13 +111,13 @@ namespace AdbSharp.Adb
 					}
 				}
 				catch (Exception ex) {
-					Debug.WriteLine (ex);
+Debug.WriteLine (ex);
 					this.NotifyStopped (ex);
 					return;
 				}
 			}
 
-			Debug.WriteLine ("done monitor");
+Debug.WriteLine ("done monitor");
 			this.NotifyStopped (null);
 		}
 
@@ -126,7 +129,7 @@ namespace AdbSharp.Adb
 				// start the monitoring process
 				var cmdResult = await this.client.ExecuteCommandAsync (Commands.Host.TrackDevices).ConfigureAwait (false);
 				if (!cmdResult) {
-					throw new AdbException ("Failed to start tracking service");
+					throw new AdbDeviceMonitorException ("Failed to start device monitor service.");
 				}
 
 				return true;

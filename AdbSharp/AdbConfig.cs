@@ -9,7 +9,7 @@ using System.Net;
 
 namespace AdbSharp
 {
-	public class AdbConfig
+	public sealed class AdbConfig
 	{
 		public const int BridgeServerPort = 5037;
 

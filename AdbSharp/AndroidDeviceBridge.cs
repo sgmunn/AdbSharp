@@ -6,7 +6,6 @@
 
 using System;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using AdbSharp.Adb;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,24 +15,11 @@ using System.Threading;
 
 namespace AdbSharp
 {
-	// TODO: more specific exceptions, audit AdbException
-	// TODO: add cancellable overloads to AndroidDeviceBridge
 	// TODO: add logging for client libraries to hook into
 	// TODO: debug log command execution and responses, with response length
 
 	// TODO: find and reconnect tcp devices if they are not connected
 	// - find the ports 5555, 5557 etc, issue the connect command ??
-
-
-
-
-	/*
-	 * Monitor is cancelled via dispose
-	 * other function calls are cancelled in the call itself, we create a client for each call, 
-	 * if the cancellation token is cancelled, we just dispose the client. passing the cancellation token to the async tcp / stream
-	 * methods doesn't help because they dont monitor the token - we need to check disposed ourselves
-	 * 
-	 */
 
 	public sealed class AndroidDeviceBridge
 	{

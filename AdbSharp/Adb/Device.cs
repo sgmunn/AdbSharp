@@ -5,7 +5,6 @@
 //  --------------------------------------------------------------------------------------------------------------------
 using System;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using System.Threading;
 
 namespace AdbSharp.Adb

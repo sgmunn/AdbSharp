@@ -15,6 +15,13 @@ namespace AdbSharp
 		}	
 	}
 
+	public class AdbDeviceMonitorException : AdbException
+	{
+		public AdbDeviceMonitorException (string message) : base (message)
+		{
+		}	
+	}
+
 	public class AdbNotFoundException : AdbException
 	{
 		public AdbNotFoundException (string message) : base (message)

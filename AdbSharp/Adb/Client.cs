@@ -7,7 +7,6 @@ using System;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.IO;
-using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 
@@ -75,7 +74,6 @@ Console.WriteLine ("Executing command: {0}", command);
 		{
 			this.CheckDisposed ();
 
-			// TODO: check state ? are we waiting for a command response ?
 			try {
 				var buffer = new byte[4096];
 				var bytesRead = await clientStream.ReadAsync (buffer, 0, 4, this.cancel.Token).ConfigureAwait (false);
@@ -105,16 +103,15 @@ Console.WriteLine ("Executing command: {0}", command);
 						return response;
 					}
 
-					throw new Exception ("???");
+					throw new InvalidAdbResponseException ("Incomplete response received.");
 				}
 
-
-				throw new Exception ("nothing returned");
+				throw new InvalidAdbResponseException ("Incorrect response length returned.");
 			}
 			catch (Exception ex) {
 				if (this.cancel.IsCancellationRequested) {
 					// normal behaviour
-					return null; // or throw task cancelled
+					return null; // or throw task cancelled ?
 				}
 
 				throw;
@@ -124,7 +121,7 @@ Console.WriteLine ("Executing command: {0}", command);
 		private void CheckConnected ()
 		{
 			if (this.tcpClient == null || !this.tcpClient.Connected)
-				throw new AdbException ("Client not connected");
+				throw new AdbConnectionException ("Client is not connected.");
 		}
 
 		private void CheckDisposed ()

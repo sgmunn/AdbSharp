@@ -21,14 +21,12 @@ namespace AdbSharp.Adb
 	{
 		public static Task<Image> ToImageAsync (this Framebuffer framebuffer) 
 		{
-			var tcs = new TaskCompletionSource<Image> ();
-
-			Task.Factory.StartNew (() => {
+			var task = Task.Factory.StartNew<Image> (() => {
 				var img = ToImage (framebuffer, framebuffer.Header.Bpp == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format16bppRgb565 );
-				tcs.SetResult (img);
+				return img;
 			});
 
-			return tcs.Task;
+			return task;
 		}
 
 		public static Image ToImage (this Framebuffer framebuffer) 
