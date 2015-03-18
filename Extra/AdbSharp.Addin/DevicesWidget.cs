@@ -200,11 +200,11 @@ namespace AdbSharpAddin
 		{
 			this.Disconnect ();
 
-
 			// TODO: test the connection and put into status bar if we failed to connect, or something like that
-			// TODO: start up adb, log failure to start
+			// TODO: log failure to start
 
-			this.adb = AndroidDeviceBridge.Create ();
+			var config = new AdbConfig (Xamarin.AndroidTools.AndroidSdk.AdbExe);
+			this.adb = AndroidDeviceBridge.Create (config);
 			this.deviceMonitor = this.adb.TrackDevices (this.DevicesChanged, this.MonitorStopped);
 			this.SetButtonStates ();
 			this.connectButton.TooltipText = "Disconnect from ADB";

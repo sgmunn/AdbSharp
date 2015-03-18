@@ -10,6 +10,10 @@ using System.Threading;
 
 namespace AdbSharp
 {
+	// TODO: shell command, sync, reboot, logcat
+
+
+
 	public interface IDevice
 	{
 		string DeviceId { get; }

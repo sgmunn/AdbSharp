@@ -107,6 +107,14 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="Mono.AndroidTools">
+      <HintPath>..\..\..\..\md-addins\MonoDevelop.MonoDroid\external\androidtools\Xamarin.AndroidTools\bin\Debug\Mono.AndroidTools.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Xamarin.AndroidTools">
+      <HintPath>..\..\..\..\md-addins\MonoDevelop.MonoDroid\external\androidtools\Xamarin.AndroidTools\bin\Debug\Xamarin.AndroidTools.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MyClass.cs" />
