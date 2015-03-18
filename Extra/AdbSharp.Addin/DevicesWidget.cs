@@ -25,8 +25,8 @@ namespace AdbSharpAddin
 		private IList<IDevice> devices;
 
 		private IDevice currentDevice;
-		private Gtk.Button unlockButton;
-		private Gtk.Button screenshotButton;
+		private DockToolButton unlockButton;
+		private DockToolButton screenshotButton;
 		private Xwt.ImageView screenshot;
 		private Xwt.ComboBox deviceDropDown;
 		private Xwt.ScrollView scrollView;
@@ -67,8 +67,8 @@ namespace AdbSharpAddin
 			this.deviceDropDown.SelectedIndex = 0;
 			this.deviceDropDown.SelectionChanged += this.DeviceDropDownSelectionChanged;
 
-			this.unlockButton = new Gtk.Button () { Label = "Unlock" };
-			this.screenshotButton = new Gtk.Button () { Label = "Screenshot" };
+			this.unlockButton = new DockToolButton (null, "Unlock");
+			this.screenshotButton = new DockToolButton (null, "Screenshot");
 			toolbar.Add (this.unlockButton);
 			toolbar.Add (this.screenshotButton);
 
