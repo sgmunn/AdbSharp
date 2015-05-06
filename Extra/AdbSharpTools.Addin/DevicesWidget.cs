@@ -17,6 +17,7 @@ using System.Linq;
 using MonoDevelop.Core;
 using System.Threading;
 using System.Reflection;
+using Gtk;
 
 namespace AdbSharpTools
 {
@@ -85,6 +86,11 @@ namespace AdbSharpTools
 			this.screenshot.ButtonPressed += this.ScreenshotButtonPressed;
 			this.unlockButton.Clicked += (sender, e) => this.UnlockDevice ();
 			this.screenshotButton.Clicked += (sender, e) => this.TakeScreenshot ();
+			this.screenshot.ButtonPressed += (sender, e) => {
+				if (e.Button == Xwt.PointerButton.Right) {
+					this.DoScreenshotContextMenu ();
+				}
+			};
 
 			this.SetButtonStates ();
 
@@ -122,10 +128,35 @@ namespace AdbSharpTools
 		private void UpdateImage ()
 		{
 			lock (this.adb) {
-				
 				if (this.lastImage != null) {
 					var scale = this.CalculateScale ();
 					this.screenshot.Image = this.lastImage.Scale (scale);
+				}
+			}
+		}
+
+		private void DoScreenshotContextMenu ()
+		{
+			var menu = new ContextMenu ();
+
+			var item = new ContextMenuItem ("Save Screenshot");
+			item.Sensitive = this.screenshot.Image != null;
+			item.Clicked += delegate {
+				this.SaveScreenshot ();
+			};
+			menu.Items.Add (item);
+			menu.Show (this.screenshot.ToGtkWidget (), null);
+		}
+
+		private void SaveScreenshot ()
+		{
+			if (this.screenshot.Image != null) {
+				var dialog = new SelectFileDialog ("Screenshot", FileChooserAction.Save) {
+					InitialFileName = "Screenshot.png",
+				};
+
+				if (dialog.Run ()) {
+					this.lastImage.Save (dialog.SelectedFile, Xwt.Drawing.ImageFileType.Png);
 				}
 			}
 		}
