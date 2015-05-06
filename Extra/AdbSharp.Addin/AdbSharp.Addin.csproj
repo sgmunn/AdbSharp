@@ -20,7 +20,7 @@
     <ConsolePause>false</ConsolePause>
     <CustomCommands>
       <CustomCommands>
-        <Command type="Execute" command="../../../../monodevelop/main/build/bin/MonoDevelop.exe --no-redirect" />
+        <Command type="Execute" command="../../../monodevelop/main/build/bin/MonoDevelop.exe --no-redirect" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -35,59 +35,59 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="MonoDevelop.Core">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\MonoDevelop.Core.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\MonoDevelop.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MonoDevelop.Ide">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\MonoDevelop.Ide.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\MonoDevelop.Ide.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ICSharpCode.Decompiler">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\ICSharpCode.Decompiler.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\ICSharpCode.Decompiler.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory.CSharp">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\ICSharpCode.NRefactory.CSharp.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\ICSharpCode.NRefactory.CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory.Cecil">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\ICSharpCode.NRefactory.Cecil.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\ICSharpCode.NRefactory.Cecil.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory.IKVM">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\ICSharpCode.NRefactory.IKVM.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\ICSharpCode.NRefactory.IKVM.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\ICSharpCode.NRefactory.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\ICSharpCode.NRefactory.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Xwt.Gtk.Mac">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\Xwt.Gtk.Mac.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\Xwt.Gtk.Mac.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Xwt.Gtk">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\Xwt.Gtk.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\Xwt.Gtk.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Xwt.Mac">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\Xwt.Mac.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\Xwt.Mac.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Xwt">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\Xwt.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\Xwt.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Xamarin.Mac">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\Xamarin.Mac.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\Xamarin.Mac.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MonoDevelop.Refactoring">
-      <HintPath>..\..\..\..\monodevelop\main\build\AddIns\MonoDevelop.Refactoring\MonoDevelop.Refactoring.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\AddIns\MonoDevelop.Refactoring\MonoDevelop.Refactoring.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Mono.TextEditor">
-      <HintPath>..\..\..\..\monodevelop\main\build\bin\Mono.TextEditor.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\bin\Mono.TextEditor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Mono.Cairo" />
@@ -108,11 +108,11 @@
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="Mono.AndroidTools">
-      <HintPath>..\..\..\..\md-addins\MonoDevelop.MonoDroid\external\androidtools\Xamarin.AndroidTools\bin\Debug\Mono.AndroidTools.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\AddIns\MonoDevelop.MonoDroid\Mono.AndroidTools.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Xamarin.AndroidTools">
-      <HintPath>..\..\..\..\md-addins\MonoDevelop.MonoDroid\external\androidtools\Xamarin.AndroidTools\bin\Debug\Xamarin.AndroidTools.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Applications\Xamarin Studio.app\Contents\Resources\lib\monodevelop\AddIns\MonoDevelop.MonoDroid\Xamarin.AndroidTools.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
