@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionModel>
+	<Runtime>
+	</Runtime>
+
+	<Extension path = "/MonoDevelop/Ide/Pads">
+		<Pad id = "AdbSharpTools.DevicesPad"
+			_label = "Android Devices"
+			class = "AdbSharpTools.DevicesPad"
+			defaultPlacement = "Right"
+			defaultStatus="AutoHide" />
+	</Extension>
+
+</ExtensionModel>

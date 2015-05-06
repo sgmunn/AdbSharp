@@ -16,8 +16,9 @@ using System.Drawing.Imaging;
 using System.Linq;
 using MonoDevelop.Core;
 using System.Threading;
+using System.Reflection;
 
-namespace AdbSharpAddin
+namespace AdbSharpTools
 {
 	internal class DevicesWidget : Gtk.VBox
 	{
@@ -95,6 +96,27 @@ namespace AdbSharpAddin
 			base.OnSizeAllocated (allocation);
 			this.viewerWidth = (int)this.screenshot.Size.Width;
 			this.viewerHeight = (int)this.screenshot.Size.Height;
+		}
+
+		private static string GetMonoDroidSdk ()
+		{
+			try {
+				var androidTools = AppDomain.CurrentDomain.GetAssemblies ().FirstOrDefault (a => a.GetType ("Xamarin.AndroidTools.AndroidSdk") != null);
+				if (androidTools != null) {
+					var androidSdk = androidTools.GetType ("Xamarin.AndroidTools.AndroidSdk");
+					var adbProperty = androidSdk.GetProperty ("AdbExe");
+					var adbExe = (string)adbProperty.GetValue (null);
+
+					// sometimes this won't have been initialised and we expect it to exist, or be blank.
+					if (File.Exists (adbExe))
+						return adbExe;
+				}
+
+			} catch (Exception ex) {
+				return string.Empty;
+			}
+
+			return string.Empty;
 		}
 
 		private void UpdateImage ()
@@ -203,7 +225,7 @@ namespace AdbSharpAddin
 			// TODO: test the connection and put into status bar if we failed to connect, or something like that
 			// TODO: log failure to start
 
-			var config = new AdbConfig (Xamarin.AndroidTools.AndroidSdk.AdbExe);
+			var config = new AdbConfig (GetMonoDroidSdk ());//Xamarin.AndroidTools.AndroidSdk.AdbExe);
 			this.adb = AndroidDeviceBridge.Create (config);
 			this.deviceMonitor = this.adb.TrackDevices (this.DevicesChanged, this.MonitorStopped);
 			this.SetButtonStates ();
