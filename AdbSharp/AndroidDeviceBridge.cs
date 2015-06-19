@@ -15,7 +15,6 @@ using System.Threading;
 
 namespace AdbSharp
 {
-	// TODO: add logging for client libraries to hook into
 	// TODO: debug log command execution and responses, with response length
 
 	// TODO: find and reconnect tcp devices if they are not connected
