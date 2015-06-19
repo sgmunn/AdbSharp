@@ -35,6 +35,7 @@ namespace AdbSharp.Adb
 
 		public static IList<IDevice> ParseDeviceOutput (AndroidDeviceBridge adb, string deviceList)
 		{
+			Logging.LogDebug ("Parsing device list: {0}", deviceList);
 			var result = new List<IDevice> ();
 
 			var devices = deviceList.Split (new [] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
@@ -44,7 +45,7 @@ namespace AdbSharp.Adb
 					var d = new Device (adb, deviceInfo [0], deviceInfo [1]);
 					result.Add (d);
 				} else {
-					// TODO: log that the info was wrong
+					Logging.LogWarning ("Could not parse device list");
 				}
 			}
 
@@ -65,6 +66,7 @@ namespace AdbSharp.Adb
 
 		private void Start ()
 		{
+			Logging.LogInfo ("DeviceMonitor Start");
 			ThreadPool.QueueUserWorkItem (this.Monitor);
 		}
 
@@ -76,6 +78,12 @@ namespace AdbSharp.Adb
 
 		private void NotifyStopped (Exception ex)
 		{
+			if (ex != null) {
+				Logging.LogError (ex);
+			}
+
+			Logging.LogInfo ("DeviceMonitor Stopped - Disposed {0}", this.disposed);
+
 			var handler = this.stopped;
 			if (handler != null)
 				handler (ex);
@@ -91,7 +99,7 @@ namespace AdbSharp.Adb
 					var r = await this.client.ReadCommandResponseAsync ().ConfigureAwait (false);
 					Logging.LogDebug ("{0}{1}", "devices: ", r);
 					if (r == null) {
-						Logging.LogDebug ("returned null");
+						Logging.LogWarning ("DeviceMonitor returned null");
 						// most likely because adb server disappeared, restarted or network issue
 						// we can try to reconnect
 						this.NotifyStopped (new AdbDeviceMonitorException ("Adb Server stopped tracking events."));
@@ -99,7 +107,6 @@ namespace AdbSharp.Adb
 					}
 
 					if (this.disposed) {
-						Logging.LogDebug ("done monitor, disposed");
 						this.NotifyStopped (null);
 						return;
 					}
@@ -111,13 +118,11 @@ namespace AdbSharp.Adb
 					}
 				}
 				catch (Exception ex) {
-					Logging.LogError (ex);
 					this.NotifyStopped (ex);
 					return;
 				}
 			}
 
-			Logging.LogDebug ("done monitor");
 			this.NotifyStopped (null);
 		}
 
@@ -135,7 +140,6 @@ namespace AdbSharp.Adb
 				return true;
 			} 
 			catch (Exception ex) {
-				Logging.LogError (ex);
 				this.NotifyStopped (ex);
 			}
 
