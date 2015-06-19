@@ -15,8 +15,6 @@ using System.Threading;
 
 namespace AdbSharp
 {
-	// TODO: debug log command execution and responses, with response length
-
 	// TODO: find and reconnect tcp devices if they are not connected
 	// - find the ports 5555, 5557 etc, issue the connect command ??
 

@@ -43,7 +43,6 @@ namespace AdbSharpTools
 		private bool sendingTap;
 
 		// TODO: cancellation of running tasks
-		// TODO: log errors from AdbSharp
 
 		public DevicesWidget (IPadWindow container) 
 		{
@@ -254,10 +253,7 @@ namespace AdbSharpTools
 		{
 			this.Disconnect ();
 
-			// TODO: test the connection and put into status bar if we failed to connect, or something like that
-			// TODO: log failure to start
-
-			var config = new AdbConfig (GetMonoDroidSdk ());//Xamarin.AndroidTools.AndroidSdk.AdbExe);
+			var config = new AdbConfig (GetMonoDroidSdk ());
 			this.adb = AndroidDeviceBridge.Create (config);
 			this.deviceMonitor = this.adb.TrackDevices (this.DevicesChanged, this.MonitorStopped);
 			this.SetButtonStates ();

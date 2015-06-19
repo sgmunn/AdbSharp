@@ -77,16 +77,19 @@ namespace AdbSharp.Adb
 			this.CheckDisposed ();
 
 			try {
+				Logging.LogDebug ("Client: Reading command response");
 				var buffer = new byte[4096];
 				var bytesRead = await clientStream.ReadAsync (buffer, 0, 4, this.cancel.Token).ConfigureAwait (false);
 
 				if (bytesRead == 0) {
+					Logging.LogDebug ("Client: 0 bytes returned, cannot continue reading command response");
 					return null;
 				}
 
 				if (bytesRead == 4) {
 					var responseLengthStr = Commands.GetCommandResponse (buffer, 0, 4);
 					int responseLength = Int32.Parse (responseLengthStr, NumberStyles.HexNumber);
+					Logging.LogDebug ("Client: command response is {0} bytes", responseLength);
 
 					// now read the response
 					int totalCount = 0;
