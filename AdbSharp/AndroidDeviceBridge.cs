@@ -63,9 +63,8 @@ namespace AdbSharp
 					if (ex.NativeErrorCode == 2) {
 						throw new AdbNotFoundException ("Adb was not found, invalid or missing configuration.");
 					}
-					else {
-						throw;
-					}
+
+					throw;
 				}
 			});
 
