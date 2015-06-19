@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdbSharp.Tests", "AdbSharp.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extra", "Extra", "{454171C3-DF1C-4267-ABA9-9B4A07411FBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdbSharp.Addin", "Extra\AdbSharp.Addin\AdbSharp.Addin.csproj", "{4D343225-68BD-4CFD-998C-2BAA13F8FB09}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdbSharpTools.Addin", "Extra\AdbSharpTools.Addin\AdbSharpTools.Addin.csproj", "{13A0FEBB-1002-46F0-9779-70914D66C74F}"
 EndProject
 Global
@@ -35,13 +33,8 @@ Global
 		{25FD7DB8-6EF4-429F-B9DC-75E30348D62F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25FD7DB8-6EF4-429F-B9DC-75E30348D62F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25FD7DB8-6EF4-429F-B9DC-75E30348D62F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4D343225-68BD-4CFD-998C-2BAA13F8FB09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4D343225-68BD-4CFD-998C-2BAA13F8FB09}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4D343225-68BD-4CFD-998C-2BAA13F8FB09}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4D343225-68BD-4CFD-998C-2BAA13F8FB09}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{4D343225-68BD-4CFD-998C-2BAA13F8FB09} = {454171C3-DF1C-4267-ABA9-9B4A07411FBA}
 		{13A0FEBB-1002-46F0-9779-70914D66C74F} = {454171C3-DF1C-4267-ABA9-9B4A07411FBA}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
