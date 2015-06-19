@@ -21,16 +21,22 @@ namespace AdbSharp
 	// TODO: find and reconnect tcp devices if they are not connected
 	// - find the ports 5555, 5557 etc, issue the connect command ??
 
+	/// <summary>
+	/// Android Device Bridge ('Adb')
+	/// </summary>
 	public sealed class AndroidDeviceBridge
 	{
+		/// <summary>
+		/// The default configuration of adb. By default we will assume that adb is in the path, if adb is not in the 
+		/// path, supply a new AdbConfig with the correct path.
+		/// </summary>
 		public static AdbConfig DefaultConfig;
 
 		public AdbConfig Config { get; private set; }
 
 		static AndroidDeviceBridge ()
 		{
-			// TODO: determine if windows and add .exe, assumes in the path
-			DefaultConfig = new AdbConfig ("adb");
+			DefaultConfig = Platform.IsWindows ? new AdbConfig ("adb.exe") : new AdbConfig ("adb");
 		}
 
 		private AndroidDeviceBridge (AdbConfig config)

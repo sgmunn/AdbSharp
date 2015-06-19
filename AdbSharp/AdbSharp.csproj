@@ -45,6 +45,7 @@
     <Compile Include="AdbException.cs" />
     <Compile Include="Utils\ProcessUtils.cs" />
     <Compile Include="Adb\FramebufferImageExtensions.cs" />
+    <Compile Include="Utils\Platform.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
