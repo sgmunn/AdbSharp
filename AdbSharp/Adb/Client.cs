@@ -156,6 +156,7 @@ namespace AdbSharp.Adb
 
 			if (allowStartServer && needsServerStart) {
 				// start up the adb server
+				Logging.LogInfo ("Client: Starting the adb server process");
 				var started = await this.Adb.StartServerAsync ().ConfigureAwait (false);
 				if (started == 0) {
 					await this.InternalConnectAsync (false);
@@ -180,13 +181,12 @@ namespace AdbSharp.Adb
 			if (bytesRead == 4) {
 				var responseStr = Commands.GetCommandResponse (response, 0, bytesRead);
 
-				Logging.LogDebug ("Client: Command responsed: {0}", responseStr);
-
 				if (responseStr == "OKAY") {
 					return true;
 				}
 
 				if (responseStr == "FAIL") {
+					Logging.LogDebug ("Client: Command responsed: {0}", responseStr);
 					return false;
 				}
 			}
