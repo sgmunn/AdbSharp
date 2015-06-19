@@ -114,7 +114,6 @@ namespace AdbSharp.Utils
 			foreach (var item in queue.GetConsumingEnumerable ()) {
 				LogItem currentItem = item;
 
-				Console.WriteLine ("Test >> ");
 				foreach (var log in GetLogs (currentItem.Level)) {
 					log.Log (currentItem.Timestamp, currentItem.ThreadId, currentItem.Level, currentItem.Message);
 				}
