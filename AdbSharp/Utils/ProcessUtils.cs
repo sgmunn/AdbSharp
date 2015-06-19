@@ -28,7 +28,7 @@ namespace AdbSharp.Utils
 			process.StartInfo = psi;
 
 			process.OutputDataReceived += (sender, e) => {
-				Debug.WriteLine (e.Data);
+				Logging.LogDebug (e.Data);
 			};
 			process.EnableRaisingEvents = true;
 

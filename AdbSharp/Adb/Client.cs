@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Globalization;
 using System.Threading;
+using AdbSharp.Utils;
 
 namespace AdbSharp.Adb
 {
@@ -61,7 +62,8 @@ namespace AdbSharp.Adb
 		{
 			this.CheckDisposed ();
 			var cmd = Commands.GetCommand (command);
-Console.WriteLine ("Executing command: {0}", command);
+			Logging.LogDebug ("Executing command: {0}", command);
+
 			await this.clientStream.WriteAsync (cmd, 0, cmd.Length, this.cancel.Token).ConfigureAwait (false);
 			if (await this.CheckCommandStatusAsync ().ConfigureAwait (false)) {
 				return true;
@@ -110,10 +112,12 @@ Console.WriteLine ("Executing command: {0}", command);
 			}
 			catch (Exception ex) {
 				if (this.cancel.IsCancellationRequested) {
+					Logging.LogDebug ("Cancelled");
 					// normal behaviour
-					return null; // or throw task cancelled ?
+					return null; // TODO: or throw task cancelled ?
 				}
 
+				Logging.LogError (ex);
 				throw;
 			}
 		}
@@ -177,7 +181,7 @@ Console.WriteLine ("Executing command: {0}", command);
 			if (bytesRead == 4) {
 				var responseStr = Commands.GetCommandResponse (response, 0, bytesRead);
 
-Console.WriteLine (responseStr);
+				Logging.LogDebug ("Command responsed: {0}", responseStr);
 
 				if (responseStr == "OKAY") {
 					return true;

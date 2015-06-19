@@ -3,6 +3,7 @@ using AdbSharp.Adb;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Threading;
+using AdbSharp.Utils;
 
 namespace AdbSharp.ConsoleTest
 {
@@ -10,6 +11,8 @@ namespace AdbSharp.ConsoleTest
 	{
 		public static void Main (string[] args)
 		{
+			Logging.InitConsoleLogging ();
+
 			var config = new AdbConfig ("/Users/sgm/Library/Developer/Xamarin/android-sdk-macosx/platform-tools/adb");
 
 			AndroidDeviceBridge.DefaultConfig = config;

@@ -44,4 +44,10 @@ Global
 		{4D343225-68BD-4CFD-998C-2BAA13F8FB09} = {454171C3-DF1C-4267-ABA9-9B4A07411FBA}
 		{13A0FEBB-1002-46F0-9779-70914D66C74F} = {454171C3-DF1C-4267-ABA9-9B4A07411FBA}
 	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		Policies = $0
+		$0.StandardHeader = $1
+		$1.Text = @--------------------------------------------------------------------------------------------------------------------\n<copyright file="${FileName}" company="(c) Greg Munn">\n  (c) 2015 (c) Greg Munn  All Rights Reserved\n</copyright>\n--------------------------------------------------------------------------------------------------------------------
+		$1.IncludeInNewFiles = True
+	EndGlobalSection
 EndGlobal

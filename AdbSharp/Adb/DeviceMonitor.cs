@@ -5,11 +5,11 @@
 //  --------------------------------------------------------------------------------------------------------------------
 
 using System;
-using System.Diagnostics;
 using AdbSharp.Adb;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using AdbSharp.Utils;
 
 namespace AdbSharp.Adb
 {
@@ -89,9 +89,9 @@ namespace AdbSharp.Adb
 			while (!this.disposed) {
 				try {
 					var r = await this.client.ReadCommandResponseAsync ().ConfigureAwait (false);
-Debug.WriteLine ("{0}{1}", "devices: ", r);
+					Logging.LogDebug ("{0}{1}", "devices: ", r);
 					if (r == null) {
-Debug.WriteLine ("returned null");
+						Logging.LogDebug ("returned null");
 						// most likely because adb server disappeared, restarted or network issue
 						// we can try to reconnect
 						this.NotifyStopped (new AdbDeviceMonitorException ("Adb Server stopped tracking events."));
@@ -99,7 +99,7 @@ Debug.WriteLine ("returned null");
 					}
 
 					if (this.disposed) {
-Debug.WriteLine ("done monitor, disposed");
+						Logging.LogDebug ("done monitor, disposed");
 						this.NotifyStopped (null);
 						return;
 					}
@@ -111,13 +111,13 @@ Debug.WriteLine ("done monitor, disposed");
 					}
 				}
 				catch (Exception ex) {
-Debug.WriteLine (ex);
+					Logging.LogError (ex);
 					this.NotifyStopped (ex);
 					return;
 				}
 			}
 
-Debug.WriteLine ("done monitor");
+			Logging.LogDebug ("done monitor");
 			this.NotifyStopped (null);
 		}
 
@@ -135,6 +135,7 @@ Debug.WriteLine ("done monitor");
 				return true;
 			} 
 			catch (Exception ex) {
+				Logging.LogError (ex);
 				this.NotifyStopped (ex);
 			}
 

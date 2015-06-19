@@ -46,6 +46,11 @@
     <Compile Include="Utils\ProcessUtils.cs" />
     <Compile Include="Adb\FramebufferImageExtensions.cs" />
     <Compile Include="Utils\Platform.cs" />
+    <Compile Include="Utils\Logging.cs" />
+    <Compile Include="Utils\ILoggingService.cs" />
+    <Compile Include="Utils\LogLevel.cs" />
+    <Compile Include="Utils\DebugLoggingService.cs" />
+    <Compile Include="Utils\ConsoleLoggingService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
