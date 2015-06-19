@@ -22,7 +22,6 @@ namespace AdbSharp.Utils
 
 		static readonly BlockingCollection<LogItem> queue = new BlockingCollection<LogItem> (new ConcurrentQueue<LogItem> ());
 		static readonly Dictionary<ILoggingService,LoggingLevel> logs = new Dictionary<ILoggingService, LoggingLevel> ();
-		static readonly List<ILoggingService> filteredLogs = new List<ILoggingService> ();
 
 		static Logging ()
 		{
