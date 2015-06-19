@@ -11,4 +11,8 @@
 			defaultStatus="AutoHide" />
 	</Extension>
 
+	<Extension path = "/MonoDevelop/Ide/InitCompleteHandlers">
+		<Class class = "AdbSharpTools.AddinInitialisation" />
+	</Extension>
+
 </ExtensionModel>

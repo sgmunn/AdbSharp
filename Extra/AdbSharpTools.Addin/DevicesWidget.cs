@@ -18,6 +18,7 @@ using MonoDevelop.Core;
 using System.Threading;
 using System.Reflection;
 using Gtk;
+using AdbSharp.Utils;
 
 namespace AdbSharpTools
 {
@@ -202,9 +203,9 @@ namespace AdbSharpTools
 		private void MonitorStopped (Exception ex)
 		{
 			if (ex != null)
-				LoggingService.Log (MonoDevelop.Core.Logging.LogLevel.Error, string.Format ("Android Device Monitor Stopped\n{0}", ex));
+				Logging.LogError (string.Format ("Android Device Monitor Stopped\n{0}", ex));
 			else
-				LoggingService.Log (MonoDevelop.Core.Logging.LogLevel.Error, "Android Device Monitor Stopped");
+				Logging.LogError ("Android Device Monitor Stopped");
 			
 			Xwt.Application.Invoke (() => {
 				this.Disconnect ();

@@ -32,6 +32,8 @@
     <Compile Include="Properties\AddinInfo.cs" />
     <Compile Include="DevicesPad.cs" />
     <Compile Include="DevicesWidget.cs" />
+    <Compile Include="MonoDevelopLoggingService.cs" />
+    <Compile Include="AddinInitialisation.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
