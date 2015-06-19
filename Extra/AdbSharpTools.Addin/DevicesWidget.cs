@@ -203,9 +203,9 @@ namespace AdbSharpTools
 		private void MonitorStopped (Exception ex)
 		{
 			if (ex != null)
-				Logging.LogError (string.Format ("Android Device Monitor Stopped\n{0}", ex));
+				Logging.LogWarning ("DevicesPad: Android Device Monitor threw an exception");
 			else
-				Logging.LogError ("Android Device Monitor Stopped");
+				Logging.LogWarning ("DevicesPad: Android Device Monitor stopped");
 			
 			Xwt.Application.Invoke (() => {
 				this.Disconnect ();

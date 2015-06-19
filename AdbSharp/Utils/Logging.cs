@@ -122,7 +122,7 @@ namespace AdbSharp.Utils
 
 		static string LogFormat (DateTime timestamp, int threadId, LogLevel level, string message)
 		{
-			return string.Format ("{0:yyyy-MM-dd HH:mm:ss} [{1:00}]: {2} - {3}", timestamp, threadId, level, message);			
+			return string.Format ("{0:yyyy-MM-dd HH:mm:ss} [{1:00}]: {2,-5} - {3}", timestamp, threadId, level, message);			
 		}
 
 		class LogItem

@@ -35,7 +35,7 @@ namespace AdbSharp.Adb
 
 		public static IList<IDevice> ParseDeviceOutput (AndroidDeviceBridge adb, string deviceList)
 		{
-			Logging.LogDebug ("Parsing device list: {0}", deviceList);
+			Logging.LogDebug ("DeviceMonitor: Parsing device list:\n--------------------\n{0}\n--------------------", deviceList);
 			var result = new List<IDevice> ();
 
 			var devices = deviceList.Split (new [] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
@@ -45,10 +45,11 @@ namespace AdbSharp.Adb
 					var d = new Device (adb, deviceInfo [0], deviceInfo [1]);
 					result.Add (d);
 				} else {
-					Logging.LogWarning ("Could not parse device list");
+					Logging.LogWarning ("DeviceMonitor: Could not parse device list");
 				}
 			}
 
+			Logging.LogInfo ("DeviceMonitor: {0} Device(s) found", result.Count);
 			return result;
 		}
 
@@ -66,7 +67,7 @@ namespace AdbSharp.Adb
 
 		private void Start ()
 		{
-			Logging.LogInfo ("DeviceMonitor Start");
+			Logging.LogInfo ("DeviceMonitor: Start");
 			ThreadPool.QueueUserWorkItem (this.Monitor);
 		}
 
@@ -79,10 +80,10 @@ namespace AdbSharp.Adb
 		private void NotifyStopped (Exception ex)
 		{
 			if (ex != null) {
-				Logging.LogError (ex);
+				Logging.LogError ("DeviceMonitor:", ex);
 			}
 
-			Logging.LogInfo ("DeviceMonitor Stopped - Disposed {0}", this.disposed);
+			Logging.LogInfo ("DeviceMonitor: Stopped - Disposed {0}", this.disposed);
 
 			var handler = this.stopped;
 			if (handler != null)
@@ -97,13 +98,11 @@ namespace AdbSharp.Adb
 			while (!this.disposed) {
 				try {
 					var r = await this.client.ReadCommandResponseAsync ().ConfigureAwait (false);
-					Logging.LogDebug ("{0}{1}", "devices: ", r);
 					if (r == null) {
-						Logging.LogWarning ("DeviceMonitor returned null");
+						Logging.LogWarning ("DeviceMonitor: returned null");
 						// most likely because adb server disappeared, restarted or network issue
 						// we can try to reconnect
-						this.NotifyStopped (new AdbDeviceMonitorException ("Adb Server stopped tracking events."));
-						return;
+						throw new AdbDeviceMonitorException ("Adb Server stopped tracking events.");
 					}
 
 					if (this.disposed) {
@@ -116,6 +115,10 @@ namespace AdbSharp.Adb
 						lastFoundDeviceList = DeviceMonitor.ParseDeviceOutput (this.client.Adb, r);
 						NotifyDevices (handler, lastFoundDeviceList);
 					}
+				}
+				catch (TaskCanceledException) {
+					this.NotifyStopped (null);
+					return;
 				}
 				catch (Exception ex) {
 					this.NotifyStopped (ex);

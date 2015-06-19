@@ -62,7 +62,7 @@ namespace AdbSharp.Adb
 		{
 			this.CheckDisposed ();
 			var cmd = Commands.GetCommand (command);
-			Logging.LogDebug ("Executing command: {0}", command);
+			Logging.LogDebug ("Client: Executing command: {0}", command);
 
 			await this.clientStream.WriteAsync (cmd, 0, cmd.Length, this.cancel.Token).ConfigureAwait (false);
 			if (await this.CheckCommandStatusAsync ().ConfigureAwait (false)) {
@@ -112,12 +112,11 @@ namespace AdbSharp.Adb
 			}
 			catch (Exception ex) {
 				if (this.cancel.IsCancellationRequested) {
-					Logging.LogDebug ("Cancelled");
-					// normal behaviour
-					return null; // TODO: or throw task cancelled ?
+					Logging.LogDebug ("Client: Command was cancelled");
+					throw new TaskCanceledException ();
 				}
 
-				Logging.LogError (ex);
+				Logging.LogError ("Client: ", ex);
 				throw;
 			}
 		}
@@ -181,7 +180,7 @@ namespace AdbSharp.Adb
 			if (bytesRead == 4) {
 				var responseStr = Commands.GetCommandResponse (response, 0, bytesRead);
 
-				Logging.LogDebug ("Command responsed: {0}", responseStr);
+				Logging.LogDebug ("Client: Command responsed: {0}", responseStr);
 
 				if (responseStr == "OKAY") {
 					return true;
