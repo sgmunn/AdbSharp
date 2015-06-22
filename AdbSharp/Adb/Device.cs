@@ -58,6 +58,16 @@ namespace AdbSharp.Adb
 			return null;
 		}
 
+		public Task<string> ExecuteShellCommand (string command, CancellationToken cancelToken)
+		{
+			return Task.FromResult ("Hello");
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("DeviceId = {0}, State = {1}", DeviceId, State);
+		}
+
 		private async Task<Client> CreateAndConnectToTransportAsync (CancellationToken cancelToken)
 		{
 			var client = await this.Adb.CreateAndConnectAsync (cancelToken).ConfigureAwait (false);

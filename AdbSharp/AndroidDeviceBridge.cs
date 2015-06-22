@@ -133,6 +133,5 @@ namespace AdbSharp
 			await client.ConnectAsync ().ConfigureAwait (false);
 			return client;
 		}
-
 	}
 }

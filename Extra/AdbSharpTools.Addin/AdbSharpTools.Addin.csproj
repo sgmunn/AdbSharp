@@ -34,6 +34,12 @@
     <Compile Include="MonoDevelopLoggingService.cs" />
     <Compile Include="AddinInitialisation.cs" />
     <Compile Include="Widgets\DevicesWidget.cs" />
+    <Compile Include="ConsolePad.cs" />
+    <Compile Include="Widgets\ConsoleWidget.cs" />
+    <Compile Include="Widgets\AdbConsoleView.cs" />
+    <Compile Include="CommandSupport\AdbCompletionData.cs" />
+    <Compile Include="CommandSupport\AdbCompletionDataList.cs" />
+    <Compile Include="CommandSupport\CommandProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
@@ -57,5 +63,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Widgets\" />
+    <Folder Include="CommandSupport\" />
   </ItemGroup>
 </Project>

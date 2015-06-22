@@ -9,6 +9,11 @@
 			class = "AdbSharpTools.DevicesPad"
 			defaultPlacement = "Right"
 			defaultStatus="AutoHide" />
+		<Pad id = "AdbSharpTools.ConsolePad"
+			_label = "ADB Console"
+			class = "AdbSharpTools.ConsolePad"
+			defaultPlacement = "Bottom"
+			defaultStatus="Dockable" />
 	</Extension>
 
 	<Extension path = "/MonoDevelop/Ide/InitCompleteHandlers">
