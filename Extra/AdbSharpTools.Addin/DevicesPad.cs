@@ -7,6 +7,7 @@
 using System;
 using Gtk;
 using MonoDevelop.Ide.Gui;
+using AdbSharpTools.Widgets;
 
 namespace AdbSharpTools
 {

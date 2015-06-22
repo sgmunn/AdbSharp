@@ -14,13 +14,12 @@ using AdbSharp.Adb;
 using System.IO;
 using System.Drawing.Imaging;
 using System.Linq;
-using MonoDevelop.Core;
 using System.Threading;
 using System.Reflection;
 using Gtk;
 using AdbSharp.Utils;
 
-namespace AdbSharpTools
+namespace AdbSharpTools.Widgets
 {
 	internal class DevicesWidget : Gtk.VBox
 	{

@@ -42,5 +42,8 @@ Global
 		$0.StandardHeader = $1
 		$1.Text = @--------------------------------------------------------------------------------------------------------------------\n<copyright file="${FileName}" company="(c) Greg Munn">\n  (c) 2015 (c) Greg Munn  All Rights Reserved\n</copyright>\n--------------------------------------------------------------------------------------------------------------------
 		$1.IncludeInNewFiles = True
+		$0.DotNetNamingPolicy = $2
+		$2.DirectoryNamespaceAssociation = PrefixedHierarchical
+		$2.ResourceNamePolicy = FileFormatDefault
 	EndGlobalSection
 EndGlobal
