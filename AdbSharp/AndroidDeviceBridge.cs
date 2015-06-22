@@ -73,7 +73,6 @@ namespace AdbSharp
 		{
 			var client = await this.CreateAndConnectAsync (cancelToken).ConfigureAwait (false);
 			using (client) {
-				await client.ConnectAsync ().ConfigureAwait (false);
 				await client.ExecuteCommandAsync (Commands.Host.Version).ConfigureAwait (false);
 
 				var data = await client.ReadCommandResponseAsync ().ConfigureAwait (false);
@@ -85,7 +84,6 @@ namespace AdbSharp
 		{
 			var client = await this.CreateAndConnectAsync (cancelToken).ConfigureAwait (false);
 			using (client) {
-				await client.ConnectAsync ().ConfigureAwait (false);
 				await client.ExecuteCommandAsync (Commands.Host.Devices).ConfigureAwait (false);
 
 				var data = await client.ReadCommandResponseAsync ().ConfigureAwait (false);
