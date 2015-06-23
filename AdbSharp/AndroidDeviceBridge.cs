@@ -75,7 +75,7 @@ namespace AdbSharp
 			using (client) {
 				await client.ExecuteCommandAsync (Commands.Host.Version).ConfigureAwait (false);
 
-				var data = await client.ReadCommandResponseAsync ().ConfigureAwait (false);
+				var data = await client.ReadCommandResponseWithLengthAsync ().ConfigureAwait (false);
 				return data;
 			}
 		}
@@ -86,7 +86,7 @@ namespace AdbSharp
 			using (client) {
 				await client.ExecuteCommandAsync (Commands.Host.Devices).ConfigureAwait (false);
 
-				var data = await client.ReadCommandResponseAsync ().ConfigureAwait (false);
+				var data = await client.ReadCommandResponseWithLengthAsync ().ConfigureAwait (false);
 				return DeviceMonitor.ParseDeviceOutput (this, data);
 			}
 		}

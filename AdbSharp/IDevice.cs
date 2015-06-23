@@ -23,5 +23,6 @@ namespace AdbSharp
 		Task SendTapAsync (int x, int y, CancellationToken cancelToken);
 		Task<Framebuffer> GetFramebufferAsync (CancellationToken cancelToken);
 		Task<string> ExecuteShellCommand (string command, CancellationToken cancelToken);
+		Task<string> GetPropertyAsync (string property, CancellationToken cancelToken);
 	}
 }

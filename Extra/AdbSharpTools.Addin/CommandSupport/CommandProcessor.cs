@@ -31,7 +31,7 @@ namespace AdbSharpTools.CommandSupport
 					return Task.FromResult ("! No device connected");
 				}
 
-				return device.ExecuteShellCommand (command, token);
+				return ProcessShellCommand (adb, device, commandParts, token);
 
 			case "version":
 				return adb.GetServerVersionAsync (token);
@@ -40,6 +40,29 @@ namespace AdbSharpTools.CommandSupport
 			default:
 				return Task.FromResult ("! Unrecognised command");
 			}
+		}
+
+		public static Task<string> ProcessShellCommand (AndroidDeviceBridge adb, IDevice device, string[] commandParts, CancellationToken token)
+		{
+			if (commandParts.Length < 2) {
+				return Task.FromResult<string> (null);
+			}
+
+			switch (commandParts [1]) {
+			case "getprop": 
+
+				return GetPropertiesAsync (adb, device, "", token);
+			default:
+				return Task.FromResult ("! Unrecognised command");
+			}
+		}
+
+		public async static Task<string> GetPropertiesAsync (AndroidDeviceBridge adb, IDevice device, string propertyName, CancellationToken token)
+		{
+			var sb = new StringBuilder ();
+			var devices = await device.GetPropertyAsync (propertyName, token);
+
+			return devices;
 		}
 
 		public async static Task<string> GetDeviceListAsync (AndroidDeviceBridge adb, CancellationToken token)

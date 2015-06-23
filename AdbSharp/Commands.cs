@@ -26,10 +26,16 @@ namespace AdbSharp
 			public const string Framebuffer = "framebuffer:";
 			public const string Unlock = "shell:input keyevent 82";
 			public const string InputTap = "shell:input tap";
+			public const string GetProp = "shell:getprop";
 
 			public static string GetInputTap (int x, int y)
 			{
 				return InputTap + string.Format (" {0} {1}", x, y);
+			}
+
+			public static string GetGetProp (string property)
+			{
+				return GetProp + string.Format (" {0}", property);
 			}
 		}
 

@@ -30,7 +30,7 @@ namespace AdbSharp.Adb
 
 			using (client) {
 				await client.ExecuteCommandAsync (Commands.Device.Unlock).ConfigureAwait (false);
-				await client.ReadCommandResponseAsync ().ConfigureAwait (false);
+				await client.ReadCommandResponseWithLengthAsync ().ConfigureAwait (false);
 			}
 		}
 
@@ -39,7 +39,7 @@ namespace AdbSharp.Adb
 			var client = await this.CreateAndConnectToTransportAsync (cancelToken).ConfigureAwait (false);
 			using (client) {
 				await client.ExecuteCommandAsync (Commands.Device.GetInputTap (x, y)).ConfigureAwait (false);
-				await client.ReadCommandResponseAsync ().ConfigureAwait (false);
+				await client.ReadCommandResponseWithLengthAsync ().ConfigureAwait (false);
 			}
 		}
 
@@ -61,6 +61,18 @@ namespace AdbSharp.Adb
 		public Task<string> ExecuteShellCommand (string command, CancellationToken cancelToken)
 		{
 			return Task.FromResult ("Hello");
+		}
+
+		public async Task<string> GetPropertyAsync (string property, CancellationToken cancelToken)
+		{
+			var client = await this.CreateAndConnectToTransportAsync (cancelToken).ConfigureAwait (false);
+			using (client) {
+				if (await client.ExecuteCommandAsync (Commands.Device.GetProp).ConfigureAwait (false)) {
+					return await client.ReadCommandResponseAsync ().ConfigureAwait (false);
+				}
+			}
+
+			return null;
 		}
 
 		public override string ToString ()

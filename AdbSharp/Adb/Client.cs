@@ -72,7 +72,10 @@ namespace AdbSharp.Adb
 			return false;
 		}
 
-		public async Task<string> ReadCommandResponseAsync ()
+		/// <summary>
+		/// Reads the command response where the response is pre-pended with the length of the response
+		/// </summary>
+		public async Task<string> ReadCommandResponseWithLengthAsync ()
 		{
 			this.CheckDisposed ();
 
@@ -112,6 +115,49 @@ namespace AdbSharp.Adb
 				}
 
 				throw new InvalidAdbResponseException ("Incorrect response length returned.");
+			}
+			catch (Exception ex) {
+				if (this.cancel.IsCancellationRequested) {
+					Logging.LogDebug ("Client: Command was cancelled");
+					throw new TaskCanceledException ();
+				}
+
+				Logging.LogError ("Client: ", ex);
+				throw;
+			}
+		}
+
+		/// <summary>
+		/// Reads the command response. The response is not pre-pended with the length of the result.
+		/// </summary>
+		public async Task<string> ReadCommandResponseAsync ()
+		{
+			this.CheckDisposed ();
+
+			try {
+				Logging.LogDebug ("Client: Reading command response");
+
+				var sw = new StringWriter ();
+
+				int totalCount = 0;
+				var buffer = new byte[4096];
+				var bytesRead = await clientStream.ReadAsync (buffer, 0, 4096, this.cancel.Token).ConfigureAwait (false);
+
+				if (bytesRead == 0) {
+					Logging.LogDebug ("Client: 0 bytes read");
+					return null;
+				}
+
+				while (bytesRead > 0) {
+					totalCount += bytesRead;
+					var responseStr = Commands.GetCommandResponse (buffer, 0, bytesRead);
+					sw.Write (responseStr);
+
+					bytesRead = await clientStream.ReadAsync (buffer, 0, 4096, this.cancel.Token).ConfigureAwait (false);
+				}
+
+				Logging.LogDebug ("Client: {0} bytes read", totalCount);
+				return sw.ToString ();
 			}
 			catch (Exception ex) {
 				if (this.cancel.IsCancellationRequested) {

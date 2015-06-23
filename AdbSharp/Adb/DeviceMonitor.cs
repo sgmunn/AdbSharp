@@ -97,7 +97,7 @@ namespace AdbSharp.Adb
 			
 			while (!this.disposed) {
 				try {
-					var r = await this.client.ReadCommandResponseAsync ().ConfigureAwait (false);
+					var r = await this.client.ReadCommandResponseWithLengthAsync ().ConfigureAwait (false);
 					if (r == null) {
 						Logging.LogWarning ("DeviceMonitor: returned null");
 						// most likely because adb server disappeared, restarted or network issue
