@@ -1,6 +1,6 @@
-<AddinProject appVersion="5.9">
+<AddinProject appVersion="5.0">
 	<Project platforms="Mac">
-		<AddinFile>Extra\AdbSharpTools.Addin\bin\Debug\AdbSharpTools.Addin.dll</AddinFile>
+		<AddinFile>Extra/AdbSharpTools.Addin/bin/Debug/AdbSharpTools.Addin.dll</AddinFile>
 		<BuildFile>AdbSharp.sln</BuildFile>
 		<BuildConfiguration>Debug</BuildConfiguration>
 	</Project>
