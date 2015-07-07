@@ -135,6 +135,8 @@ namespace AdbSharpTools.Widgets
 					}
 				}
 
+				this.SetButtonStates ();
+
 				// default if only one device
 				if (this.deviceDropDown.SelectedIndex <= 0 && onlineDevices.Count == 1) {
 					this.deviceDropDown.SelectedIndex = 1;
