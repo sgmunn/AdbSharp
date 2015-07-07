@@ -17,6 +17,9 @@ namespace AdbSharpTools.Widgets
 {
 	public class AdbConsoleView : ConsoleView, ICompletionWidget
 	{
+		private readonly Gtk.TextTag outputTag;
+		private readonly Gtk.TextTag errorTag;
+
 		#pragma warning disable 0414 // it is used, XS just can't tell
 		private bool busy;
 		#pragma warning restore 0414
@@ -26,6 +29,7 @@ namespace AdbSharpTools.Widgets
 
 		private bool showingCompletionWindow;
 
+
 		public AdbConsoleView ()
 		{
 			this.TextView.KeyReleaseEvent += this.OnEditKeyRelease;
@@ -34,6 +38,15 @@ namespace AdbSharpTools.Widgets
 
 			CompletionWindowManager.WindowClosed -= this.OnCompletionWindowClosed;
 			CompletionWindowManager.WindowClosed += this.OnCompletionWindowClosed;
+
+			outputTag = new Gtk.TextTag ("output");
+			outputTag.ForegroundGdk = new Gdk.Color (100, 100, 100);
+
+			errorTag = new Gtk.TextTag ("error");
+			errorTag.ForegroundGdk = new Gdk.Color (100, 0, 0);
+
+			this.Buffer.TagTable.Add (outputTag);
+			this.Buffer.TagTable.Add (errorTag);
 		}
 
 		public AndroidDeviceBridge Adb { get; set; }
@@ -103,7 +116,8 @@ namespace AdbSharpTools.Widgets
 			}
 		}
 
-		#pragma warning disable 067 // it is used, part of the interface requirements
+		// it is used, part of the interface requirements
+		#pragma warning disable 067 
 		public event EventHandler CompletionContextChanged; 
 		#pragma warning restore 067
 
@@ -220,6 +234,11 @@ namespace AdbSharpTools.Widgets
 			base.UpdateInputLineBegin ();
 		}
 
+		private static bool IsCompletionChar (char c)
+		{
+			return (char.IsLetterOrDigit (c) || char.IsPunctuation (c) || char.IsSymbol (c) || char.IsWhiteSpace (c));
+		}
+
 		private async Task ProcessCommand (string command)
 		{
 			this.busy = true;
@@ -227,13 +246,22 @@ namespace AdbSharpTools.Widgets
 				var adb = this.Adb;
 				if (adb != null) {
 					var result = await CommandProcessor.ProcessCommand (adb, this.Device, command, CancellationToken.None);
-					this.WriteOutput (result);
+					this.WriteOutputWithColor (result);
 				}
 			} catch (Exception ex) {
-				this.WriteOutput ("Error - " + ex.ToString ());
+				this.WriteOutputWithColor ("Error - " + ex.ToString (), errorTag);
 			} finally {
 				this.busy = false;
 			}
+		}
+
+		private void WriteOutputWithColor (string line, Gtk.TextTag tag = null)
+		{
+			Gtk.TextIter endIter = this.Buffer.EndIter;
+
+			this.Buffer.InsertWithTags (ref endIter, line, new [] { (tag ?? outputTag) });
+			this.Buffer.PlaceCursor (this.Buffer.EndIter);
+			this.TextView.ScrollMarkOnscreen (this.Buffer.InsertMark);
 		}
 
 		private void OnCustomOutputPadFontChanged (object sender, EventArgs e)
@@ -244,11 +272,6 @@ namespace AdbSharpTools.Widgets
 		private void OnCompletionWindowClosed (object sender, EventArgs e)
 		{
 			showingCompletionWindow = false;
-		}
-
-		bool IsCompletionChar (char c)
-		{
-			return (char.IsLetterOrDigit (c) || char.IsPunctuation (c) || char.IsSymbol (c) || char.IsWhiteSpace (c));
 		}
 
 		private void PopupCompletion (uint keyValue)
