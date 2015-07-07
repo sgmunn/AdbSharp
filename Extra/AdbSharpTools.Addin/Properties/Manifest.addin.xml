@@ -10,7 +10,7 @@
 			defaultPlacement = "Right"
 			defaultStatus="AutoHide" />
 		<Pad id = "AdbSharpTools.ConsolePad"
-			_label = "ADB Console"
+			_label = "ADB Shell Console"
 			class = "AdbSharpTools.ConsolePad"
 			defaultPlacement = "Bottom"
 			defaultStatus="Dockable" />

@@ -13,12 +13,12 @@ namespace AdbSharpTools
 {
 	internal class ConsolePad : AbstractPadContent
 	{
-		private ConsoleWidget widget;
+		private AdbConsoleViewWidget widget;
 
 		public override void Initialize (IPadWindow container)
 		{
 			base.Initialize (container);
-			this.widget = new ConsoleWidget (container);
+			this.widget = new AdbConsoleViewWidget (container);
 		}
 
 		public override Widget Control {
