@@ -33,7 +33,7 @@ namespace AdbSharp
 				return InputTap + string.Format (" {0} {1}", x, y);
 			}
 
-			public static string GetGetProp (string property)
+			public static string CreateGetPropCommand (string property)
 			{
 				return GetProp + string.Format (" {0}", property);
 			}

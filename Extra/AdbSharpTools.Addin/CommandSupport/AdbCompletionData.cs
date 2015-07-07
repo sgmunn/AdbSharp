@@ -11,22 +11,30 @@ namespace AdbSharpTools.CommandSupport
 {
 	class AdbCompletionData : CompletionData
 	{
-		string command;
+		private readonly string command;
+		private readonly string displayValue;
 
 		public AdbCompletionData (string command)
 		{
 			this.command = command;
+			this.displayValue = command;
+		}
+
+		public AdbCompletionData (string command, string displayValue)
+		{
+			this.command = command;
+			this.displayValue = displayValue;
 		}
 
 		public override string DisplayText {
 			get {
-				return command;
+				return this.displayValue;
 			}
 		}
 
 		public override string CompletionText {
 			get {
-				return command;
+				return this.command;
 			}
 		}
 

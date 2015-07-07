@@ -12,6 +12,7 @@ using System.Threading;
 using MonoDevelop.Ide.CodeCompletion;
 using MonoDevelop.Ide;
 using AdbSharpTools.CommandSupport;
+using AdbSharp.Utils;
 
 namespace AdbSharpTools.Widgets
 {
@@ -20,7 +21,8 @@ namespace AdbSharpTools.Widgets
 		private readonly Gtk.TextTag outputTag;
 		private readonly Gtk.TextTag errorTag;
 
-		#pragma warning disable 0414 // it is used, XS just can't tell
+		// it is used, XS just can't tell
+		#pragma warning disable 0414 
 		private bool busy;
 		#pragma warning restore 0414
 		private Gtk.TextMark tokenBeginMark;
@@ -28,7 +30,6 @@ namespace AdbSharpTools.Widgets
 		private string[] currentTokens;
 
 		private bool showingCompletionWindow;
-
 
 		public AdbConsoleView ()
 		{
@@ -249,7 +250,8 @@ namespace AdbSharpTools.Widgets
 					this.WriteOutputWithColor (result);
 				}
 			} catch (Exception ex) {
-				this.WriteOutputWithColor ("Error - " + ex.ToString (), errorTag);
+				Logging.LogError (ex);
+				this.WriteOutputWithColor ("Error - " + ex.Message, errorTag);
 			} finally {
 				this.busy = false;
 			}
@@ -274,22 +276,25 @@ namespace AdbSharpTools.Widgets
 			showingCompletionWindow = false;
 		}
 
-		private void PopupCompletion (uint keyValue)
+		private async void PopupCompletion (uint keyValue)
 		{
-			Gtk.Application.Invoke (delegate {
-				char c = (char) Gdk.Keyval.ToUnicode (keyValue);
-				if (!showingCompletionWindow && IsCompletionChar (c)) {
-					var dataList = new AdbCompletionDataList (this.currentTokens);
+			AdbCompletionDataList dataList = null;
+			char c = (char) Gdk.Keyval.ToUnicode (keyValue);
+			if (!showingCompletionWindow && IsCompletionChar (c)) {
+				dataList = new AdbCompletionDataList (this.currentTokens, this.Device);
+				await dataList.GetCompletionItemsAsync ();
+			}
+
+			if (dataList != null) {
+				Gtk.Application.Invoke (delegate {
 					completionContext = this.CreateCodeCompletionContext (0);
-
 					showingCompletionWindow = true;
-
 					CompletionWindowManager.ShowWindow (null, c, dataList, this, completionContext);
-				}
-			});
+				});
+			}
 		}
 
-		void OnEditKeyRelease (object sender, Gtk.KeyReleaseEventArgs args)
+		private void OnEditKeyRelease (object sender, Gtk.KeyReleaseEventArgs args)
 		{
 			UpdateTokenBeginMarker ();
 
@@ -297,6 +302,11 @@ namespace AdbSharpTools.Widgets
 			var keyValue = args.Event.KeyValue;
 			var modifier = args.Event.State;
 			var key = args.Event.Key;
+
+			// allow the user to navigate up and down the list
+			if (showingCompletionWindow && (key == Gdk.Key.Down || key == Gdk.Key.Up)) {
+				return;
+			}
 
 			string text = TokenText;
 

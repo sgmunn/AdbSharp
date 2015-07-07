@@ -35,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command\CommandTests.cs" />
+    <Compile Include="DeviceProperties\DevicePropertyTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -45,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Command\" />
+    <Folder Include="DeviceProperties\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

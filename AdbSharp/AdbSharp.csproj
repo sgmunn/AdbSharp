@@ -51,6 +51,7 @@
     <Compile Include="Utils\LogLevel.cs" />
     <Compile Include="Utils\DebugLoggingService.cs" />
     <Compile Include="Utils\ConsoleLoggingService.cs" />
+    <Compile Include="Adb\DeviceProperties.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

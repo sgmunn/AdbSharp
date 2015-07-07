@@ -67,7 +67,7 @@ namespace AdbSharp.Adb
 		{
 			var client = await this.CreateAndConnectToTransportAsync (cancelToken).ConfigureAwait (false);
 			using (client) {
-				if (await client.ExecuteCommandAsync (Commands.Device.GetProp).ConfigureAwait (false)) {
+				if (await client.ExecuteCommandAsync (Commands.Device.CreateGetPropCommand (property)).ConfigureAwait (false)) {
 					return await client.ReadCommandResponseAsync ().ConfigureAwait (false);
 				}
 			}

@@ -26,9 +26,9 @@ namespace AdbSharpTools.CommandSupport
 			}
 
 			switch (commandParts [0]) {
-			case "shell": 
+			case "getprop": 
 				if (device == null) {
-					return Task.FromResult ("! No device connected");
+					throw new InvalidOperationException ("No device connected");
 				}
 
 				return ProcessShellCommand (adb, device, commandParts, token);
@@ -38,31 +38,33 @@ namespace AdbSharpTools.CommandSupport
 			case "devices":
 				return GetDeviceListAsync (adb, token);
 			default:
-				return Task.FromResult ("! Unrecognised command");
+				throw new InvalidOperationException ("Unrecognised command");
 			}
 		}
 
-		public static Task<string> ProcessShellCommand (AndroidDeviceBridge adb, IDevice device, string[] commandParts, CancellationToken token)
+		public static Task<string> ProcessShellCommand (AndroidDeviceBridge adb, IDevice device, string[] args, CancellationToken token)
 		{
-			if (commandParts.Length < 2) {
-				return Task.FromResult<string> (null);
-			}
+//			if (args.Length < 2) {
+//				return Task.FromResult<string> (null);
+//			}
 
-			switch (commandParts [1]) {
+			switch (args [0]) {
 			case "getprop": 
 
-				return GetPropertiesAsync (adb, device, "", token);
+				return GetPropertiesAsync (adb, device, args.Length < 2 ? "" : args [1], token);
 			default:
-				return Task.FromResult ("! Unrecognised command");
+				throw new InvalidOperationException ("Unrecognised command");
 			}
 		}
 
 		public async static Task<string> GetPropertiesAsync (AndroidDeviceBridge adb, IDevice device, string propertyName, CancellationToken token)
 		{
-			var sb = new StringBuilder ();
-			var devices = await device.GetPropertyAsync (propertyName, token);
+			var result = await device.GetPropertyAsync (propertyName, token);
+			if (!string.IsNullOrEmpty (propertyName)) {
+				return result.TrimEnd ('\r', '\n');
+			}
 
-			return devices;
+			return result;
 		}
 
 		public async static Task<string> GetDeviceListAsync (AndroidDeviceBridge adb, CancellationToken token)
@@ -223,64 +225,5 @@ namespace AdbSharpTools.CommandSupport
 
 			return argv;
 		}
-
-//		/// <summary>
-//		/// Returns true if there are more characters to process and updates index to the first non-whitespace char
-//		/// </summary>
-//		private static bool EatWhitespace (string text, ref int index)
-//		{
-//			while (index < text.Length && char.IsWhiteSpace (text[index]))
-//				index++;
-//
-//			return index < text.Length;
-//		}
-//
-//		/// <summary>
-//		/// Returns true if the index was moved past an idenitifer / command
-//		/// </summary>
-//		private static bool EatIdentifier (string text, ref int index)
-//		{
-//			int startIndex = index;
-//
-//			if (index >= text.Length)
-//				return false;
-//
-////			while (index < text.Length && (char.IsLetterOrDigit (text[index]) || text[index] == '_'))
-////				index++;
-//
-//			// eat everything that is not a space - TODO - quoted spaces !
-//			while (index < text.Length && (!char.IsWhiteSpace (text[index])))
-//				index++;
-//
-//			return index > startIndex;
-//		}
-//
-//		private static void UpdateTokenBeginMarker (string command)
-//		{
-//			// TODO: the way we generate tokens needs work. this fails if the last char is a space and we never get any completions
-//			var stack = new Stack<int> ();
-//			int index = 0;
-//
-//			// remove leading whitespace
-//			if (!EatWhitespace (command, ref index))
-//				return;
-//
-//			// push the start of the tokens
-//			stack.Push (index);
-//
-//			// we should be positioned at the start of a token
-//
-//
-//			while (EatIdentifier (command, ref index) &&  EatWhitespace (command, ref index)) {
-//				stack.Push (index);
-//			}
-//
-//			index = stack.Peek ();
-//
-//			var iter = Buffer.GetIterAtOffset (InputLineBegin.Offset + index);
-//			Buffer.MoveMark (tokenBeginMark, iter);
-//		}
-//
 	}
 }
-
